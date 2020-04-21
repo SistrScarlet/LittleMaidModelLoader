@@ -1,6 +1,7 @@
 package net.blacklab.lmc.common.entity;
 
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
@@ -14,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  *
  */
 @EventBusSubscriber
-public class LMEntityItemAntiDamage extends EntityItem {
+public class LMEntityItemAntiDamage extends ItemEntity {
 
 	public LMEntityItemAntiDamage(World worldIn, double x, double y, double z, ItemStack stack) {
 		super(worldIn, x, y, z, stack);

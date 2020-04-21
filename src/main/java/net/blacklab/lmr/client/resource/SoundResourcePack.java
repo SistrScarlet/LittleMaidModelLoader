@@ -11,10 +11,7 @@ import com.google.common.collect.ImmutableSet;
 
 import net.blacklab.lmr.LittleMaidReengaged;
 import net.blacklab.lmr.util.manager.SoundManager;
-import net.minecraft.client.resources.DefaultResourcePack;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.data.IMetadataSection;
-import net.minecraft.client.resources.data.MetadataSerializer;
+import net.minecraft.resources.IResourcePack;
 import net.minecraft.util.ResourceLocation;
 
 /**

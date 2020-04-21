@@ -16,9 +16,7 @@ import com.google.common.collect.ImmutableSet;
 
 import net.blacklab.lmr.LittleMaidReengaged;
 import net.blacklab.lmr.config.LMRConfig;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.data.IMetadataSection;
-import net.minecraft.client.resources.data.MetadataSerializer;
+import net.minecraft.resources.IResourcePack;
 import net.minecraft.util.ResourceLocation;
 
 /**
