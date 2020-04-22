@@ -2,13 +2,9 @@ package net.blacklab.lmc.common.helper;
 
 import net.blacklab.lmr.entity.littlemaid.EntityLittleMaid;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 
 public class LittleMaidHelper {
@@ -18,7 +14,7 @@ public class LittleMaidHelper {
 	 * メイドさんからスポーンアイテムを生成
 	 */
 	@SuppressWarnings("deprecation")
-	public static ItemStack getItemStackFromEntity(EntityLiving entityliving, ItemStack spawnItem) {
+	public static ItemStack getItemStackFromEntity(LivingEntity entityliving, ItemStack spawnItem) {
 		
 		ItemStack stack = ItemStack.EMPTY;
 		
@@ -27,10 +23,10 @@ public class LittleMaidHelper {
 		
 		stack = spawnItem;
 
-		//EntityLivingをNBT化
-		NBTTagCompound entityNBT = getNBTTagFromEntityLiving(entityliving);
+		//LivingEntityをNBT化
+		CompoundNBT entityNBT = LivingEntity(entityliving);
 
-		NBTTagCompound stackNBT = new NBTTagCompound();
+		CompoundNBT stackNBT = new CompoundNBT();
 		stackNBT.setTag("Mob", entityNBT);
 		
 		stack.setTagCompound(stackNBT);
@@ -53,11 +49,11 @@ public class LittleMaidHelper {
 	/**
 	 * メイドさんNBTからスポーンアイテムを生成
 	 */
-	public static ItemStack getItemStackFromNBT(NBTTagCompound entityNBT, ItemStack spawnItem) {
+	public static ItemStack getItemStackFromNBT(CompoundNBT entityNBT, ItemStack spawnItem) {
 		
 		ItemStack stack = spawnItem;
 		
-		NBTTagCompound stackNBT = new NBTTagCompound();
+		CompoundNBT stackNBT = new CompoundNBT();
 		stackNBT.setTag("Mob", entityNBT);
 		
 		stack.setTagCompound(stackNBT);
@@ -87,7 +83,7 @@ public class LittleMaidHelper {
 		if (stack.hasTagCompound() == false
 				|| !stack.getTagCompound().hasKey("Mob")) return null;
 		
-		NBTTagCompound entityNBT = (NBTTagCompound) stack.getTagCompound().getTag("Mob");
+		CompoundNBT entityNBT = (CompoundNBT) stack.getTagCompound().getTag("Mob");
 		
 		Entity entity = EntityList.createEntityFromNBT(entityNBT, world);
 
@@ -115,9 +111,9 @@ public class LittleMaidHelper {
 	}
 	
 	/**
-	 * EntityLivingからMobIdを取得する
+	 * LivingEntityからMobIdを取得する
 	 */
-	public static String getEntityId(EntityLiving entityliving) {
+	public static String getEntityId(LivingEntity entityliving) {
 		String mobid = "";
 		net.minecraftforge.fml.common.registry.EntityEntry entry = 
 				net.minecraftforge.fml.common.registry.EntityRegistry.getEntry(entityliving.getClass());
@@ -128,13 +124,13 @@ public class LittleMaidHelper {
 	}
 	
 	/**
-	 * EntityLivingからNBTを生成する
+	 * LivingEntityからNBTを生成する
 	 * @return
 	 */
-	public static NBTTagCompound getNBTTagFromEntityLiving(EntityLiving entityliving) {
+	public static CompoundNBT getNBTTagFromLivingEntity(LivingEntity entityliving) {
 		
 		//NBTタグ生成
-		NBTTagCompound entityNBT = new NBTTagCompound();
+		CompoundNBT entityNBT = new CompoundNBT();
 		entityliving.writeToNBT(entityNBT);
     	
     	//一部パラメータをリセット

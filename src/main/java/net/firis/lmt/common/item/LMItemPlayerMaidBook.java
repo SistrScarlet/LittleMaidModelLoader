@@ -5,22 +5,23 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.blacklab.lmr.entity.littlemaid.EntityLittleMaid;
+import net.blacklab.lmr.setup.ModSetup;
 import net.firis.lmt.config.FirisConfig;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LMItemPlayerMaidBook extends Item {
 	
@@ -28,24 +29,25 @@ public class LMItemPlayerMaidBook extends Item {
 	 * コンストラクタ
 	 */
 	public LMItemPlayerMaidBook() {
-		this.setMaxStackSize(1);
-		this.setCreativeTab(CreativeTabs.MISC);
+		super(new Item.Properties()
+				.maxStackSize(1)
+				.group(ModSetup.ITEM_GROUP));
 	}
+
 	/**
 	 * 左クリックからのアイテム化
 	 */
 	@Override
-	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity)
-    {
+	public boolean onLeftClickEntity(ItemStack stack, PlayerEntity player, Entity entity) {
 		setDressUpPlayerFromMaid(player, entity);
 		return true;
-    }
-	
+	}
+
 	/**
 	 * Shift＋右クリックからのアイテム化
 	 */
 	@Override
-	public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand)
+	public boolean itemInteractionForEntity(ItemStack stack, PlayerEntity playerIn, LivingEntity target, Hand hand)
     {
 		setDressUpPlayerFromMaid(playerIn, target);
 		return true;
@@ -54,7 +56,7 @@ public class LMItemPlayerMaidBook extends Item {
 	/**
 	 * プレイヤーがメイドさんの見た目になる
 	 */
-	public void setDressUpPlayerFromMaid(EntityPlayer player, Entity entity) {
+	public void setDressUpPlayerFromMaid(PlayerEntity player, Entity entity) {
 		
 		if (!player.world.isRemote) return;
 		
@@ -69,7 +71,7 @@ public class LMItemPlayerMaidBook extends Item {
 		String armorModelName = entityMaid.getTextureBox()[1].textureName;
 		
 		//メイドモデルの設定
-		if (!player.isSneaking()) {
+		if (!player.isShiftKeyDown()) {
 			
 			//Config操作用
 			Property propModel = FirisConfig.config.get(FirisConfig.CATEGORY_AVATAR, "01.MaidModel", FirisConfig.cfg_maid_model);
@@ -100,19 +102,19 @@ public class LMItemPlayerMaidBook extends Item {
 			} else {
 				ItemStack offHandStack = player.getHeldItemOffhand();
 				//頭防具
-				if (offHandStack.getItem().isValidArmor(offHandStack, EntityEquipmentSlot.HEAD, player)) {
+				if (offHandStack.getItem().canEquip(offHandStack, EquipmentSlotType.HEAD, player)) {
 					propModelArmorHelmet.set(armorModelName);
 				}
 				//胴防具
-				if (offHandStack.getItem().isValidArmor(offHandStack, EntityEquipmentSlot.CHEST, player)) {
+				if (offHandStack.getItem().canEquip(offHandStack, EquipmentSlotType.CHEST, player)) {
 					propModelArmorChest.set(armorModelName);
 				}
 				//腰防具
-				if (offHandStack.getItem().isValidArmor(offHandStack, EntityEquipmentSlot.LEGS, player)) {
+				if (offHandStack.getItem().canEquip(offHandStack, EquipmentSlotType.LEGS, player)) {
 					propModelArmorLegg.set(armorModelName);
 				}
 				//足防具
-				if (offHandStack.getItem().isValidArmor(offHandStack, EntityEquipmentSlot.FEET, player)) {
+				if (offHandStack.getItem().canEquip(offHandStack, EquipmentSlotType.FEET, player)) {
 					propModelArmorBoots.set(armorModelName);
 				}
 			}
@@ -122,11 +124,11 @@ public class LMItemPlayerMaidBook extends Item {
 		FirisConfig.syncConfig();
 		
 	}
-	
+
+	@OnlyIn(Dist.CLIENT)
 	@Override
-	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
-    {
-		tooltip.add(TextFormatting.LIGHT_PURPLE + I18n.format("item.player_maid_book.info"));
-    }
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+		tooltip.add(new StringTextComponent(TextFormatting.LIGHT_PURPLE + I18n.format("item.player_maid_book.info")));
+	}
+
 }

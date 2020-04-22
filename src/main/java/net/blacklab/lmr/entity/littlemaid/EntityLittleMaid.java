@@ -74,6 +74,7 @@ import net.blacklab.lmr.item.ItemTriggerRegisterKey;
 import net.blacklab.lmr.network.GuiHandler;
 import net.blacklab.lmr.network.LMRMessage;
 import net.blacklab.lmr.network.LMRNetwork;
+import net.blacklab.lmr.setup.Registration;
 import net.blacklab.lmr.util.Counter;
 import net.blacklab.lmr.util.EntityCaps;
 import net.blacklab.lmr.util.EnumSound;
@@ -108,7 +109,7 @@ import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityArrow.PickupStatus;
@@ -197,8 +198,8 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	protected static final DataParameter<Integer> dataWatch_ItemUse		= EntityDataManager.createKey(EntityLittleMaid.class, DataSerializers.VARINT);
 	/** 保持経験値→メイド経験値で上書きな */
 	protected static final DataParameter<Float> dataWatch_MaidExpValue		= EntityDataManager.createKey(EntityLittleMaid.class, DataSerializers.FLOAT);
-	// TODO この処遇は何とするか．EntityPlayer#ABSORPTIONはprivateだし
-	/** EntityPlayer と EntityTameable で17番がかぶっているため、EntityPlayer側を28へ移動。 */
+	// TODO この処遇は何とするか．PlayerEntity#ABSORPTIONはprivateだし
+	/** PlayerEntity と EntityTameable で17番がかぶっているため、EntityPlayer側を28へ移動。 */
 	protected static final DataParameter<Float> dataWatch_AbsorptionAmount	= EntityDataManager.createKey(EntityLittleMaidAvatarMP.class, DataSerializers.FLOAT);
 
 	/**
@@ -239,7 +240,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 //	public int jumpTicks;
 
 	public InventoryLittleMaid maidInventory;
-	public EntityPlayer maidAvatar;
+	public PlayerEntity maidAvatar;
 	public EntityCaps maidCaps;	// Client側のみ
 
 	public List<EntityModeBase> maidEntityModeList;
@@ -258,7 +259,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	public TileEntity maidTileEntity;
 
 	// 動的な状態
-	protected EntityPlayer mstatMasterEntity;	// 主
+	protected PlayerEntity mstatMasterEntity;	// 主
 	protected double mstatMasterDistanceSq;		// 主との距離、計算軽量化用
 	protected Entity mstatgotcha;				// ワイヤード用
 	protected boolean mstatBloodsuck;
@@ -379,7 +380,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	 * @param par1World
 	 */
 	public EntityLittleMaid(World par1World) {
-		super(par1World);
+		super(Registration.LITTLE_MAID_MOB.get(), par1World);
 		// 初期設定
 		maidInventory = new InventoryLittleMaid(this);
 		if (par1World != null ) {
@@ -533,7 +534,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 		getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
 		// 攻撃速度
 		getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_SPEED).setBaseValue(5D);
-		// Wrap EntityPlayer
+		// Wrap PlayerEntity
 		getAttributeMap().registerAttribute(SharedMonsterAttributes.LUCK);
 	}
 
@@ -1180,7 +1181,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 		if (maidInventory.getInventorySlotContainItem(Items.CLOCK) == -1) return;
 		
 		//ご主人さまとの距離
-		EntityPlayer player = getMaidMasterEntity();
+		PlayerEntity player = getMaidMasterEntity();
 		if (player == null) return;
 		double masterDistanceSq = getDistanceSq(player);
 		
@@ -1539,7 +1540,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 		boolean isRide = isRiding();
 		par1nbtTagCompound.setBoolean(LittleMaidReengaged.DOMAIN + ":riding", isRide);
 		if (isRide) {
-			if (getRidingEntity() instanceof EntityPlayer) {
+			if (getRidingEntity() instanceof PlayerEntity) {
 				par1nbtTagCompound.setString(LittleMaidReengaged.DOMAIN + ":ridingPlayer", getRidingEntity().getUniqueID().toString());
 			}
 			par1nbtTagCompound.setIntArray(LittleMaidReengaged.DOMAIN + ":lastPosition", new int[]{(int) posX, (int) posY, (int) posZ});
@@ -1663,7 +1664,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 			String playerUid = par1nbtTagCompound.getString(LittleMaidReengaged.DOMAIN + ":ridingPlayer");
 			if (!playerUid.isEmpty()) {
 				try {
-					EntityPlayer ridingPlayer = getEntityWorld().getPlayerEntityByUUID(UUID.fromString(playerUid));
+					PlayerEntity ridingPlayer = getEntityWorld().getPlayerEntityByUUID(UUID.fromString(playerUid));
 					if (ridingPlayer != null) {
 						startRiding(ridingPlayer);
 					}
@@ -1737,7 +1738,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	public double getYOffset() {
 		double yOffset = -0.30D;
 
-		if(getRidingEntity() instanceof EntityPlayer) {
+		if(getRidingEntity() instanceof PlayerEntity) {
 			// 姿勢制御
 
 			// --------------------------------------------
@@ -1759,8 +1760,8 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	public void updateRidden() {
 		super.updateRidden();
 
-		if(getRidingEntity() instanceof EntityPlayer) {
-			EntityPlayer lep = (EntityPlayer)getRidingEntity();
+		if(getRidingEntity() instanceof PlayerEntity) {
+			PlayerEntity lep = (PlayerEntity)getRidingEntity();
 
 			// ヘッドハガー
 			renderYawOffset = lep.renderYawOffset;
@@ -1985,7 +1986,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 		}
 
 		// EXP penalty
-		if (par1DamageSource.getTrueSource() instanceof EntityPlayer || par1DamageSource.getDamageType().equals("inWall") ||
+		if (par1DamageSource.getTrueSource() instanceof PlayerEntity || par1DamageSource.getDamageType().equals("inWall") ||
 				par1DamageSource.getDamageType().equals("inFire") || par1DamageSource.getDamageType().equals("inLava") ||
 				par1DamageSource.getDamageType().equals("anvil") || par1DamageSource.getDamageType().equals("fall") ||
 				par1DamageSource.getDamageType().equals("cactus") || par1DamageSource.getDamageType().equals("onFire")) {
@@ -2077,7 +2078,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	}
 
 	@Override
-	protected int getExperiencePoints(EntityPlayer par1EntityPlayer) {
+	protected int getExperiencePoints(PlayerEntity par1EntityPlayer) {
 		return 0;
 	}
 
@@ -2887,7 +2888,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 		if (is.isEmpty()) return;
 
 		try {
-			Method me = is.getItem().getClass().getMethod("isWeaponReload", ItemStack.class, EntityPlayer.class);
+			Method me = is.getItem().getClass().getMethod("isWeaponReload", ItemStack.class, PlayerEntity.class);
 			weaponReload = (Boolean)me.invoke(is.getItem(), is, maidAvatar);
 		}catch (NoClassDefFoundError e) {
 		} catch (NoSuchMethodException e) {
@@ -3073,7 +3074,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	 * メイドインベントリを開く
 	 * @param pEntityPlayer
 	 */
-	public void displayGUIMaidInventory(EntityPlayer pEntityPlayer) {
+	public void displayGUIMaidInventory(PlayerEntity pEntityPlayer) {
 		if (!getEntityWorld().isRemote) {
 			GuiHandler.maidServer = this;
 			pEntityPlayer.openGui(LittleMaidReengaged.instance, GuiHandler.GUI_ID_INVVENTORY, getEntityWorld(),
@@ -3086,7 +3087,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	}
 
 	@Override
-	public boolean processInteract(EntityPlayer par1EntityPlayer, EnumHand hand)
+	public boolean processInteract(PlayerEntity par1EntityPlayer, EnumHand hand)
 	{
 		LittleMaidReengaged.Debug(getEntityWorld().isRemote, "LMM_EntityLittleMaid.interact:"+par1EntityPlayer.getGameProfile().getName());
 		float lhealth = getHealth();
@@ -3458,7 +3459,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	 * Set maid's mode automatically.
 	 * @return whether the mode was changed
 	 */
-	private boolean setMaidModeAuto(EntityPlayer par1EntityPlayer) {
+	private boolean setMaidModeAuto(PlayerEntity par1EntityPlayer) {
 		boolean lflag = false;
 		String orgnMode = getMaidModeString();
 
@@ -3512,7 +3513,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	 * 
 	 * エフェクトは実行しない
 	 */
-	public void setFirstContract(EntityPlayer player) {
+	public void setFirstContract(PlayerEntity player) {
 		boolean contractFlag = true;
 		super.setTamed(contractFlag);
 		textureData.setContract(contractFlag);
@@ -3583,17 +3584,17 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	}
 
 	@Nullable
-	public EntityPlayer getMaidMasterEntity() {
+	public PlayerEntity getMaidMasterEntity() {
 		// 主を獲得
 		if (isContract()) {
 			/*
-			EntityPlayer entityplayer = mstatMasterEntity;
+			PlayerEntity entityplayer = mstatMasterEntity;
 			if (mstatMasterEntity == null || mstatMasterEntity.isDead) {
 				UUID lname;
 				// サーバー側ならちゃんとオーナ判定する
 
 				// Minecraftクラスのプレイヤーを取得していたが、サーバには存在しないためプロキシをかませる。サーバならNULL固定
-				EntityPlayer clientPlayer = LittleMaidReengaged.proxy.getClientPlayer();
+				PlayerEntity clientPlayer = LittleMaidReengaged.proxy.getClientPlayer();
 
 				if (!LittleMaidReengaged.proxy.isSinglePlayer()
 						|| clientPlayer == null) {
@@ -3629,7 +3630,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	 * @param pentity
 	 * @return
 	 */
-	public boolean isMaidContractOwner(EntityPlayer pentity) {
+	public boolean isMaidContractOwner(PlayerEntity pentity) {
 		
 		//みんなのメイドさん
 		if (LMRConfig.cfg_cstm_everyones_maid && pentity != null) {
@@ -4684,13 +4685,13 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	/**
 	 * クライアント側から設定する擬似騎乗処理用
 	 */
-	private EntityPlayer clinetRidingEntity = null;
+	private PlayerEntity clinetRidingEntity = null;
 	
 	/**
 	 * クライアント側からのみ擬似騎乗設定を行える
 	 */
 	@SideOnly(Side.CLIENT)
-	public void setClinetRidingEntity(EntityPlayer clinetRidingEntity) {
+	public void setClinetRidingEntity(PlayerEntity clinetRidingEntity) {
 		this.clinetRidingEntity = clinetRidingEntity;
 	}
 	
@@ -4713,7 +4714,7 @@ public class EntityLittleMaid extends TameableEntity implements IModelEntity {
 	/**
 	 * 指定ハンドのアイテムを消費してItemStackをプレイヤーにセットする
 	 */
-	private void setItemStackPlayerHand(ItemStack setStack, EnumHand hand, EntityPlayer player) {
+	private void setItemStackPlayerHand(ItemStack setStack, EnumHand hand, PlayerEntity player) {
         
 		ItemStack handStack = player.getHeldItem(hand);
 		

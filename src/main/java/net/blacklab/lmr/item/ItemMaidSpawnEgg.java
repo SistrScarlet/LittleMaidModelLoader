@@ -1,85 +1,64 @@
 package net.blacklab.lmr.item;
 
-import net.blacklab.lmr.LittleMaidReengaged;
 import net.blacklab.lmr.entity.littlemaid.EntityLittleMaid;
-import net.minecraft.creativetab.CreativeTabs;
+import net.blacklab.lmr.setup.ModSetup;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ItemMaidSpawnEgg extends Item
-{
+//不明 setHasSubtypes(true);
+public class ItemMaidSpawnEgg extends Item {
 
-	public ItemMaidSpawnEgg()
-	{
-		setHasSubtypes(true);
-		setCreativeTab(CreativeTabs.MISC);
-		setUnlocalizedName(LittleMaidReengaged.DOMAIN + ":spawn_littlemaid_egg");
-	}
+    public ItemMaidSpawnEgg() {
+        super(new Item.Properties()
+                .group(ModSetup.ITEM_GROUP));
+    }
 
-	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-    {
-		ItemStack stack = player.getHeldItem(hand);
-		if (worldIn.isRemote)
-		{
-			return EnumActionResult.SUCCESS;
-		}
-		//Block block = worldIn.getBlockState(pos).getBlock();
-		int par4 = pos.getX(); int par5 = pos.getY() + 1; int par6 = pos.getZ();
-		/*
-		par4 += Facing.offsetsXForSide[par7];
-		par5 += Facing.offsetsYForSide[par7];
-		par6 += Facing.offsetsZForSide[par7];
-		*/
-		double d0 = 0.0D;
+    @Override
+    public ActionResultType onItemUse(ItemUseContext context) {
+        ItemStack stack = context.getItem();
+        World world = context.getWorld();
+        BlockPos pos = context.getPos();
+        if (world.isRemote) {
+            return ActionResultType.SUCCESS;
+        }
 
-//		if (par7 == EnumFacing.UP && block.getRenderType(par3World.getBlockState(par46X)) == EnumBlockRenderType)
-//		{
-//			d0 = 0.5D;
-//		}
+        Entity entity = spawnMaid(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
 
-		Entity entity = spawnMaid(worldIn, par4 + 0.5D, par5 + d0, par6 + 0.5D);
+        if (entity != null) {
+            if (entity instanceof LivingEntity && stack.hasDisplayName()) {
+                entity.setCustomName(stack.getDisplayName());
+            }
 
-		if (entity != null)
-		{
-			if (entity instanceof EntityLivingBase && stack.hasDisplayName())
-			{
-				((EntityLiving)entity).setCustomNameTag(stack.getDisplayName());
-			}
+            PlayerEntity player = context.getPlayer();
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+        }
 
-			if (!player.capabilities.isCreativeMode)
-			{
-				stack.shrink(1);
-			}
-		}
+        return ActionResultType.SUCCESS;
+    }
 
-		return EnumActionResult.SUCCESS;
-	}
+    public static Entity spawnMaid(World world, double x, double y, double z) {
+        EntityLittleMaid spawnEntity = null;
+        try {
+            spawnEntity = new EntityLittleMaid(world);
 
-	public static Entity spawnMaid(World par0World, double par2, double par4, double par6)
-	{
-		EntityLiving entityliving = null;
-		try {
-			entityliving = new EntityLittleMaid(par0World);
+            spawnEntity.setLocationAndAngles(x, y, z, (world.rand.nextFloat() * 360.0F) - 180.0F, 0.0F);
+//			((LMM_EntityLittleMaid)spawnEntity).setTextureNames();
+            spawnEntity.onSpawnWithEgg();
+            world.addEntity(spawnEntity);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-			entityliving.setLocationAndAngles(par2, par4, par6, (par0World.rand.nextFloat() * 360.0F) - 180.0F, 0.0F);
-//			((LMM_EntityLittleMaid)entityliving).setTextureNames();
-			((EntityLittleMaid) entityliving).onSpawnWithEgg();
-			par0World.spawnEntity(entityliving);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return entityliving;
-	}
+        return spawnEntity;
+    }
 
 }

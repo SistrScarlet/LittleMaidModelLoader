@@ -17,7 +17,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionUtils;
@@ -96,7 +96,7 @@ public class InventoryLittleMaid extends InventoryPlayer {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagList par1nbtTagList) {
+	public void readFromNBT(ListNBT par1nbtTagList) {
 		for (int i = 0; i < par1nbtTagList.tagCount(); i++) {
 			NBTTagCompound nbttagcompound = par1nbtTagList.getCompoundTagAt(i);
 			int j = nbttagcompound.getByte("Slot") & 0xff;
@@ -125,8 +125,8 @@ public class InventoryLittleMaid extends InventoryPlayer {
 	}
 
 	@Override
-	public NBTTagList writeToNBT(NBTTagList nbtTagListIn) {
-		NBTTagList result = super.writeToNBT(nbtTagListIn);
+	public ListNBT writeToNBT(ListNBT nbtTagListIn) {
+		ListNBT result = super.writeToNBT(nbtTagListIn);
 
 		for (int k = 0; k < mainHandInventory.size(); ++k) {
 			if (!this.mainHandInventory.get(k).isEmpty()) {
@@ -680,7 +680,7 @@ public class InventoryLittleMaid extends InventoryPlayer {
 	 * Clientしか呼ばれないはず
 	 * @param tagList
 	 */
-	public void setPacketInventory(NBTTagList tagList) {
+	public void setPacketInventory(ListNBT tagList) {
 		
 		//手持ちインベントリのリセット
 		this.clear();
