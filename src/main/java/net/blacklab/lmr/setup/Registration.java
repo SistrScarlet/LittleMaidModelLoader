@@ -17,12 +17,12 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import static net.blacklab.lmr.LittleMaidReengaged.DOMAIN;
+import static net.blacklab.lmr.LittleMaidReengaged.MODID;
 
 public class Registration {
 
-    private static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, DOMAIN);
-    private static final DeferredRegister<EntityType<?>> ENTITIES = new DeferredRegister<>(ForgeRegistries.ENTITIES, DOMAIN);
+    private static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+    private static final DeferredRegister<EntityType<?>> ENTITIES = new DeferredRegister<>(ForgeRegistries.ENTITIES, MODID);
 
     public static void init() {
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -46,6 +46,7 @@ public class Registration {
             EntityType.Builder.create((EntityType.IFactory<LMEntityItemAntiDamage>)(type, world) -> new LMEntityItemAntiDamage(world), EntityClassification.CREATURE)
                     .size(1F, 1F)
                     .setShouldReceiveVelocityUpdates(false)
+                    .immuneToFire()
                     .build("entityitem_antidamage"));
 
 }

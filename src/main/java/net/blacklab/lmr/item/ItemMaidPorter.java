@@ -35,8 +35,8 @@ public class ItemMaidPorter extends Item {
     public void addInformation(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         CompoundNBT stackTag = stack.getTag();
         if (stackTag != null) {
-            String customName = stackTag.getString(LittleMaidReengaged.DOMAIN + ":MAID_NAME");
-            float experience = stackTag.getFloat(LittleMaidReengaged.DOMAIN + ":EXPERIENCE");
+            String customName = stackTag.getString(LittleMaidReengaged.MODID + ":MAID_NAME");
+            float experience = stackTag.getFloat(LittleMaidReengaged.MODID + ":EXPERIENCE");
 
             if (!customName.isEmpty()) {
                 tooltip.add(new StringTextComponent("Name: ".concat(customName)));
@@ -57,8 +57,8 @@ public class ItemMaidPorter extends Item {
         CompoundNBT tagCompound = stack.getOrCreateTag();
         BlockPos pos = context.getPos();
         if (world.isAirBlock(pos.add(0, 1, 0)) && world.isAirBlock(pos.add(0, 2, 0))) {
-            String customName = tagCompound.getString(LittleMaidReengaged.DOMAIN + ":MAID_NAME");
-            float experience = tagCompound.getFloat(LittleMaidReengaged.DOMAIN + ":EXPERIENCE");
+            String customName = tagCompound.getString(LittleMaidReengaged.MODID + ":MAID_NAME");
+            float experience = tagCompound.getFloat(LittleMaidReengaged.MODID + ":EXPERIENCE");
 
             EntityLittleMaid lMaid = new EntityLittleMaid(world) {
                 @Deprecated
@@ -75,11 +75,11 @@ public class ItemMaidPorter extends Item {
                 lMaid.setCustomName(new StringTextComponent(customName));
             }
             lMaid.maidInventory.clear();
-            lMaid.maidInventory.readFromNBT(tagCompound.getList(LittleMaidReengaged.DOMAIN + ":MAID_INVENTORY", 10));
+            lMaid.maidInventory.readFromNBT(tagCompound.getList(LittleMaidReengaged.MODID + ":MAID_INVENTORY", 10));
 
-            lMaid.setTextureNameMain(tagCompound.getString(LittleMaidReengaged.DOMAIN + ":MAIN_MODEL_NAME"));
-            lMaid.setTextureNameArmor(tagCompound.getString(LittleMaidReengaged.DOMAIN + ":ARMOR_MODEL_NAME"));
-            lMaid.setColor((byte) tagCompound.getInt(LittleMaidReengaged.DOMAIN + ":MAID_COLOR"));
+            lMaid.setTextureNameMain(tagCompound.getString(LittleMaidReengaged.MODID + ":MAIN_MODEL_NAME"));
+            lMaid.setTextureNameArmor(tagCompound.getString(LittleMaidReengaged.MODID + ":ARMOR_MODEL_NAME"));
+            lMaid.setColor((byte) tagCompound.getInt(LittleMaidReengaged.MODID + ":MAID_COLOR"));
         } else {
             return ActionResultType.PASS;
         }
