@@ -53,7 +53,7 @@ sourceSets.main {
    	}
 
    	manifest {
-   		attributes 'FMLCorePlugin' : 'net.blacklab.lmr.util.coremod.LMRECoremod'
+   		attributes 'FMLCorePlugin' : 'net.sistr.lmml.util.coremod.LMRECoremod'
    		attributes 'FMLCorePluginContainsFMLMod' : 'true'
    	}
    }
