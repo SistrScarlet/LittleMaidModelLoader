@@ -8,26 +8,32 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.sistr.lmml.client.maidmodel.EntityCaps;
-import net.sistr.lmml.client.maidmodel.IModelCaps;
-import net.sistr.lmml.client.maidmodel.ModelBaseSolo;
-import net.sistr.lmml.client.maidmodel.ModelLittleMaid_Aug;
+import net.blacklab.lmr.entity.maidmodel.EntityCaps;
+import net.blacklab.lmr.entity.maidmodel.IModelCaps;
+import net.blacklab.lmr.entity.maidmodel.ModelBaseSolo;
+import net.blacklab.lmr.entity.maidmodel.ModelLittleMaid_Aug;
 import net.sistr.lmml.entity.MultiModelLoadEntity;
+import net.sistr.lmml.util.manager.ModelManager;
 
 import javax.annotation.Nullable;
 
+//ココ->Solo->ModelBase
+//LivingRendererの処理を流用
+//ただし互換性を維持するために、Soloのrenderにて、古いバージョンのrenderにすり替えている
+//足りない引数は、メンバ変数への直接記入で補っている
 @OnlyIn(Dist.CLIENT)
 public class MultiModelRenderer extends LivingRenderer<MultiModelLoadEntity, ModelBaseSolo<MultiModelLoadEntity>> {
     IModelCaps caps;
 
     public MultiModelRenderer(EntityRendererManager rendererManager) {
         super(rendererManager, new ModelBaseSolo<>(), 0.5F);
-        entityModel.model = new ModelLittleMaid_Aug();
     }
 
     @Override
     public void render(MultiModelLoadEntity entityIn, float entityYaw, float partialTicks,
                        MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
+        entityModel.model = entityIn.texture.models[0];
+
         if (caps == null) {
             caps = new EntityCaps(entityIn);
         }
@@ -37,6 +43,11 @@ public class MultiModelRenderer extends LivingRenderer<MultiModelLoadEntity, Mod
         entityModel.buffer = bufferIn;
         setModelValues(entityIn, entityIn.getPosX(), entityIn.getPosY(), entityIn.getPosZ(), entityYaw, partialTicks, caps);
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
+    }
+
+    @Override
+    protected boolean canRenderName(MultiModelLoadEntity entity) {
+        return false;
     }
 
     public void setModelValues(MultiModelLoadEntity entity, double x, double y, double z,

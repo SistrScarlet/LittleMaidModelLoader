@@ -12,6 +12,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.sistr.lmml.util.loader.LMFileLoader;
+import net.sistr.lmml.util.manager.ModelManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,16 @@ public class ModSetup {
     };
 
     public static void init(final FMLCommonSetupEvent event) {
+
+        //リトルメイドファイルローダー
+        LMFileLoader.instance.load();
+
+        //マルチモデルセットアップ
+        ModelManager.instance.createLittleMaidModels();
+
+        //サウンドパックセットアップ
+        //SoundManager.instance.createSounds();
+
         MinecraftForge.EVENT_BUS.register(ForgeEventHandlers.class);
 
         if (LMRConfig.CAN_SPAWN_LM.get()) {

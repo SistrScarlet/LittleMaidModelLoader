@@ -1,6 +1,7 @@
 package net.sistr.lmml.entity;
 
 
+import net.blacklab.lmr.entity.maidmodel.TextureBox;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -8,8 +9,11 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 import net.sistr.lmml.setup.Registration;
+import net.sistr.lmml.util.manager.ModelManager;
 
 public class MultiModelLoadEntity extends CreatureEntity {
+    public TextureBox texture = ModelManager.instance.getTextureBox(ModelManager.instance.getRandomTextureString(this.rand));
+    public int color = texture.getRandomContractColor(this.rand);
 
     public MultiModelLoadEntity(EntityType<MultiModelLoadEntity> type, World worldIn) {
         super(type, worldIn);

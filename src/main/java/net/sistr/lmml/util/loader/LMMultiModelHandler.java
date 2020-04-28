@@ -1,0 +1,183 @@
+package net.sistr.lmml.util.loader;
+
+import net.blacklab.lmr.entity.maidmodel.ModelMultiBase;
+import net.sistr.lmml.LittleMaidModelLoader;
+import net.sistr.lmml.config.LMRConfig;
+import net.sistr.lmml.util.loader.resource.ResourceFileHelper;
+
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * メイドさんのマルチモデルをロードする
+ *
+ * @author firis-games
+ */
+public class LMMultiModelHandler implements ILMFileLoaderHandler {
+
+    public static LMMultiModelHandler instance = new LMMultiModelHandler();
+
+    private LMMultiModelHandler() {
+    }
+
+    /**
+     * マルチモデルクラス保管用
+     */
+    public static Map<String, Class<? extends ModelMultiBase>> multiModelClassMap = new HashMap<>();
+
+    /**
+     * マルチモデルのクラス名に含まれる文字列
+     */
+    private static final List<String> existsMultiModelNames = Arrays.asList("ModelMulti_", "ModelLittleMaid_");
+
+    /**
+     * キャッシュフラグ
+     */
+    private boolean isCache = false;
+
+    /**
+     * キャッシュファイル名
+     */
+    private final String cacheFileName = "cache_multimodelpack.json";
+
+    /**
+     * Handlerの初期化処理
+     * キャッシュ確認しキャッシュがあれば読込する
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void init() {
+
+        //キャッシュ機能の利用可否
+        if (true /*!LMRConfig.cfg_loader_is_cache*/) return;
+
+        //変換用キャッシュ
+        Map<String, String> cachemultiModelClassMap;
+        cachemultiModelClassMap = ResourceFileHelper.readFromJson(this.cacheFileName, Map.class);
+        if (cachemultiModelClassMap == null) return;
+
+        //内部設定へ変換する
+        multiModelClassMap.clear();
+
+        for (String className : cachemultiModelClassMap.keySet()) {
+            try {
+                //クラスをロード
+                Class<?> modelClass;
+                modelClass = Class.forName(cachemultiModelClassMap.get(className));
+
+                //クラスを登録
+                multiModelClassMap.put(className, (Class<? extends ModelMultiBase>) modelClass);
+
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        if (multiModelClassMap.size() > 0) {
+            this.isCache = true;
+        }
+    }
+
+    /**
+     * キャッシュがある場合は読み込み処理を行わない
+     */
+    @Override
+    public boolean isFileLoad() {
+        return !this.isCache;
+    }
+
+    /**
+     * 対象ファイルがマルチモデルか判断する
+     * <p>
+     * ・拡張子が.class
+     * 　・クラス名にexistsMultiModelNamesを含む
+     */
+    @Override
+    public boolean isLoadHandler(String path, Path filePath) {
+        //.class判定
+        if (path != null && path.endsWith(".class")) {
+
+            String className = path.substring(path.lastIndexOf("/") + 1);
+
+            //クラスファイル名チェック
+            return existsMultiModelNames.stream()
+                    .anyMatch(className::contains);
+        }
+        return false;
+    }
+
+    private static final Transformer transformer = new Transformer();
+
+    /**
+     * マルチモデルクラスをロード
+     * <p>
+     * 　ModelMultiBaseを継承しているかはこのタイミングでチェックする
+     * 　クラス名から識別子を削除した名称をモデルIDとして登録する
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public void loadHandler(String path, Path filePath, InputStream inputstream) {
+
+        try {
+            //ClassLoader用パスへ変換
+            String classpath = path.replace("/", ".");
+            classpath = classpath.substring(0, path.lastIndexOf(".class"));
+
+            //クラスを取得
+            Class<?> modelClass;
+            if (inputstream != null) {
+                modelClass = transformer.loadFile(classpath, path, inputstream);
+            } else {
+                modelClass = Class.forName(classpath);
+            }
+
+            //マルチモデル
+            if (ModelMultiBase.class.isAssignableFrom(modelClass)) {
+                //モデルID
+                String className = classpath.substring(classpath.lastIndexOf(".") + 1);
+                //識別子削除
+                for (String mmName : existsMultiModelNames) {
+                    int idx = className.indexOf(mmName);
+                    if (idx > -1) {
+                        className = className.substring(idx + mmName.length());
+                        break;
+                    }
+                }
+
+                //クラスを登録
+                multiModelClassMap.put(className, (Class<? extends ModelMultiBase>) modelClass);
+            }
+
+        } catch (Exception e) {
+            LittleMaidModelLoader.LOGGER.error(String.format("LMMultiModelHandler-Exception : %s", path));
+            if (LMRConfig.cfg_PrintDebugMessage) e.printStackTrace();
+        }
+    }
+
+    /**
+     * ファイル読込後の処理
+     * キャッシュファイルを出力する
+     */
+    @Override
+    public void postLoadHandler() {
+
+        //キャッシュファイルを出力する
+        if (LMRConfig.cfg_loader_is_cache) {
+
+            //キャッシュファイル出力用に変換する
+            Map<String, String> cachemultiModelClassMap = new HashMap<>();
+            for (String key : multiModelClassMap.keySet()) {
+                cachemultiModelClassMap.put(key, multiModelClassMap.get(key).getName());
+            }
+
+            //キャッシュ出力
+            ResourceFileHelper.writeToJson(this.cacheFileName, cachemultiModelClassMap);
+        }
+
+    }
+}
