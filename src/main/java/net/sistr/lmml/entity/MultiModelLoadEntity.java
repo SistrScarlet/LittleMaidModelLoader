@@ -12,8 +12,14 @@ import net.sistr.lmml.setup.Registration;
 import net.sistr.lmml.util.manager.ModelManager;
 
 public class MultiModelLoadEntity extends CreatureEntity {
-    public TextureBox texture = ModelManager.instance.getTextureBox(ModelManager.instance.getRandomTextureString(this.rand));
-    public int color = texture.getRandomContractColor(this.rand);
+    public TextureBox textureBox = ModelManager.instance.getTextureBox(ModelManager.instance.getRandomTextureString(this.rand));
+    public int color = getRandomColor();
+
+    private int getRandomColor() {
+        int wildColor = textureBox.getRandomWildColor(this.rand);
+        int contractColor = textureBox.getRandomContractColor(this.rand);
+        return wildColor == -1 ? contractColor : wildColor;
+    }
 
     public MultiModelLoadEntity(EntityType<MultiModelLoadEntity> type, World worldIn) {
         super(type, worldIn);

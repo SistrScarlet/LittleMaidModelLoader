@@ -1,10 +1,12 @@
 package net.sistr.lmml;
 
+import net.minecraft.client.Minecraft;
 import net.sistr.lmml.config.LMRConfig;
 import net.sistr.lmml.setup.*;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.sistr.lmml.util.loader.LMMLPackFinder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +21,9 @@ public class LittleMaidModelLoader {
 
     public LittleMaidModelLoader() {
 
+        //リソースをマイクラに読み込ませるための―詳しくはLMMLPackFinderにて
+        Minecraft.getInstance().getResourcePackList().addPackFinder(new LMMLPackFinder());
+
         Registration.init();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ModSetup::init);
@@ -26,15 +31,12 @@ public class LittleMaidModelLoader {
 
     }
 
+    //あとで置き換える
     public static void Debug(String pText, Object... pVals) {
         if (LMRConfig.cfg_PrintDebugMessage) {
             System.out.println(String.format("littleMaidMob-" + pText, pVals));
         }
 
-    }
-
-    public static void Debug(boolean isRemote, String format, Object... pVals) {
-        Debug("Side=%s; ".concat(format), isRemote, pVals);
     }
 
 }

@@ -178,7 +178,7 @@ public class LMFileLoader {
      *
      * @return
      */
-    private Path getMinecraftHomePath() {
+    private static Path getMinecraftHomePath() {
         return FMLPaths.GAMEDIR.get();
     }
 

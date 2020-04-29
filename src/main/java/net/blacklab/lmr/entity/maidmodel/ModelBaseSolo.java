@@ -107,11 +107,14 @@ public class ModelBaseSolo<T extends LivingEntity> extends ModelBaseNihil<T> imp
 
     @Override
     public RenderType getRenderTypeMM(ResourceLocation resourcelocation) {
-        return RenderType.getEntityCutoutNoCull(resourcelocation);
+        if (resourcelocation == null) {
+            return RenderType.getCutout();
+        }
+        return RenderType.getEntityTranslucent(resourcelocation);
     }
 
     public ResourceLocation getEntityTexture(T entity) {
-        return ((MultiModelLoadEntity)entity).texture.getTextureName(((MultiModelLoadEntity) entity).color);
+        return ((MultiModelLoadEntity)entity).textureBox.getTextureName(((MultiModelLoadEntity) entity).color);
     }
 
     /**

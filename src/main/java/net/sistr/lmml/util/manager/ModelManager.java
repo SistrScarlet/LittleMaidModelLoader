@@ -5,13 +5,10 @@ import net.blacklab.lmr.entity.maidmodel.ModelMultiBase;
 import net.blacklab.lmr.entity.maidmodel.TextureBox;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.sistr.lmml.LittleMaidModelLoader;
 import net.sistr.lmml.config.LMRConfig;
 import net.sistr.lmml.util.loader.LMMultiModelHandler;
 import net.sistr.lmml.util.loader.LMTextureHandler;
-import net.sistr.lmml.util.loader.resource.OldZipTexturesWrapper;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -83,7 +80,7 @@ public class ModelManager {
         lbox.addTexture(0x0c, "/assets/minecraft/textures/entity/lmsteve/steve.png");
         if (armorFilenamePrefix != null && armorFilenamePrefix.length > 0) {
             for (String ls : armorFilenamePrefix) {
-                Map<Integer, ResourceLocation> lmap = new HashMap<Integer, ResourceLocation>();
+                Map<Integer, ResourceLocation> lmap = new HashMap<>();
                 lmap.put(tx_armor1, new ResourceLocation(
                         "textures/models/armor/" + ls + "_layer_2.png"));
                 lmap.put(tx_armor2, new ResourceLocation(
@@ -187,9 +184,13 @@ public class ModelManager {
         //        llist.add(lbox);
         //    }
         //}
-        TextureBox wild = this.textures.get(pRand.nextInt(this.textures.size()));
-
-        return wild.textureName;
+        //防具モデルのみのモデルが選ばれる場合があるため若干変更
+        while (true) {
+            TextureBox wild = this.textures.get(pRand.nextInt(this.textures.size()));
+            if (0 < wild.textures.size()) {
+                return wild.textureName;
+            }
+        }
     }
 
     public void setDefaultTexture(Class<?> pEntityClass, TextureBox pBox) {
@@ -273,12 +274,6 @@ public class ModelManager {
                 //colorごとに追加
                 textureBox.addTexture(colorIndex, bindTexturePath);
 
-                //旧テクスチャパス対応
-                //OldZipTexturesWrapperで差し替えて対応する
-                if (FMLEnvironment.dist == Dist.CLIENT &&
-                        ((!texturePath.equals(texturePath.toLowerCase())))) {
-                    OldZipTexturesWrapper.addTexturePath(texturePath);
-                }
             }
 
             //モデルロードメッセージ

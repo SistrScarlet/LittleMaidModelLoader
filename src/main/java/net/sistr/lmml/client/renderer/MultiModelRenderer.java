@@ -11,16 +11,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.blacklab.lmr.entity.maidmodel.EntityCaps;
 import net.blacklab.lmr.entity.maidmodel.IModelCaps;
 import net.blacklab.lmr.entity.maidmodel.ModelBaseSolo;
-import net.blacklab.lmr.entity.maidmodel.ModelLittleMaid_Aug;
 import net.sistr.lmml.entity.MultiModelLoadEntity;
-import net.sistr.lmml.util.manager.ModelManager;
 
 import javax.annotation.Nullable;
 
 //ココ->Solo->ModelBase
 //LivingRendererの処理を流用
 //ただし互換性を維持するために、Soloのrenderにて、古いバージョンのrenderにすり替えている
-//足りない引数は、メンバ変数への直接記入で補っている
+//足りない引数はメンバ変数への直接参照で補っている
 @OnlyIn(Dist.CLIENT)
 public class MultiModelRenderer extends LivingRenderer<MultiModelLoadEntity, ModelBaseSolo<MultiModelLoadEntity>> {
     IModelCaps caps;
@@ -32,7 +30,7 @@ public class MultiModelRenderer extends LivingRenderer<MultiModelLoadEntity, Mod
     @Override
     public void render(MultiModelLoadEntity entityIn, float entityYaw, float partialTicks,
                        MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
-        entityModel.model = entityIn.texture.models[0];
+        entityModel.model = entityIn.textureBox.models[0];
 
         if (caps == null) {
             caps = new EntityCaps(entityIn);

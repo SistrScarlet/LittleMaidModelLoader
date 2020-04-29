@@ -1,20 +1,12 @@
 package net.sistr.lmml.util.loader;
 
 import com.google.common.collect.Lists;
-import cpw.mods.modlauncher.Launcher;
-import cpw.mods.modlauncher.TransformingClassLoader;
 import net.sistr.lmml.config.LMRConfig;
-import org.apache.commons.compress.utils.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +18,9 @@ import java.util.Map.Entry;
  * 使用しているクラスを置換えて新しいものへ対応。
  *
  */
+//元からほぼ変更を加えていない
+//いずれクラスパスを変える予定
 public class Transformer implements Opcodes {
-
 
 	static String oldPackageString = "mmmlibx/lib/multiModel/model/mc162/";
 	static String newPackageString = "net/blacklab/lmr/entity/maidmodel/";
@@ -58,6 +51,7 @@ public class Transformer implements Opcodes {
 			addModelClassToTransform("ModelStabilizerBase");
 			addModelClassToTransform("ModelStabilizer_WitchHat");
 
+			//いくつか追加
 			put("mmmlibx/lib/MMM_EntityCaps", "net/blacklab/lmr/util/EntityCapsLiving");
 			put("net/blacklab/lmr/util/EntityCapsLiving", "net/blacklab/lmr/entity/maidmodel/EntityCaps");
 			put("littleMaidMobX/EntityCaps", "net/blacklab/lmr/entity/maidmodel/EntityCaps");
@@ -88,14 +82,6 @@ public class Transformer implements Opcodes {
 		"net.minecraft.src.mod_Modchu_ModchuLib",
 		"modchu.pflm",
 		"modchu.pflmf");
-
-	public Class<?> loadFile(String name, String transformedName, InputStream inputStream) throws IOException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-		byte[] classFile = transform(name, transformedName, IOUtils.toByteArray(inputStream));
-		Field field = Launcher.INSTANCE.getClass().getDeclaredField("classLoader");
-		field.setAccessible(true);
-		TransformingClassLoader classLoader = (TransformingClassLoader) field.get(Launcher.INSTANCE);
-		return classLoader.getClass(name, classFile);
-	}
 
 	public byte[] transform(String name, String transformedName, byte[] basicClass) {
 		Transformer.isEnable = true;

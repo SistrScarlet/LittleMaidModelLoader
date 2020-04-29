@@ -23,7 +23,7 @@ public class Registration {
 
     public static final RegistryObject<EntityType<MultiModelLoadEntity>> MULTI_MODEL_LOAD_ENTITY = ENTITIES.register("multi_model_load_entity", () ->
             EntityType.Builder.create((EntityType.IFactory<MultiModelLoadEntity>) MultiModelLoadEntity::new, EntityClassification.MISC)
-            .size(1, 1)
+            .size(0.8F, 1)
             .setShouldReceiveVelocityUpdates(false)
             .build("multi_model_load_entity"));
 
