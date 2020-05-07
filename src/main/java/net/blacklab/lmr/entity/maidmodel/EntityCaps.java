@@ -13,6 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Entityのデータ読み取り用のクラス
+ * 別にEntityにインターフェース付けてもOK
+ */
 public class EntityCaps implements IModelCaps {
     protected Entity owner;
     private static final Map<String, Integer> caps = new HashMap<>();

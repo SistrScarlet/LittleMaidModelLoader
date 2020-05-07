@@ -43,6 +43,18 @@ public class ModelRenderer {
     public static float blue;
     public static float alpha;
 
+    public static void setParam(Object... arg) {
+        if (arg[0] != null) matrixStack = (MatrixStack) arg[0];
+        if (arg[1] != null) buffer = (IVertexBuilder) arg[1];
+        if (arg[2] != null) packedLight = (int) arg[2];
+        if (arg[3] != null) packedOverlay = (int) arg[3];
+        //ここら辺、引数で渡すときに1ぴったりだとしても、必ず1Fと入力しないとクラッシュしてしぬ
+        if (arg[4] != null) red = (float) arg[4];
+        if (arg[5] != null) green = (float) arg[5];
+        if (arg[6] != null) blue = (float) arg[6];
+        if (arg[7] != null) alpha = (float) arg[7];
+    }
+
     //15のModelRendererからコピペしたメソッドたち
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn) {
         this.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, 1.0F, 1.0F, 1.0F, 1.0F);
@@ -243,6 +255,8 @@ public class ModelRenderer {
         return this;
     }
 
+    //動作保証なし
+    @Deprecated
     public ModelRenderer addBox(String pName, float pX, float pY, float pZ,
                                 int pWidth, int pHeight, int pDepth) {
         addParts(ModelBox.class, pName, pX, pY, pZ, pWidth, pHeight, pDepth, 0.0F);
@@ -410,6 +424,8 @@ public class ModelRenderer {
         return this;
     }
 
+    //動作保証なし
+    @Deprecated
     public ModelRenderer addPlate(String pName, float pX, float pY, float pZ,
                                   int pWidth, int pHeight, int pFacePlane) {
         addParts(ModelPlate.class, pName, pX, pY, pZ, pWidth, pHeight, pFacePlane, 0.0F);

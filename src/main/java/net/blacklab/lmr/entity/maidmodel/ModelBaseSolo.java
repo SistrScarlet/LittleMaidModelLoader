@@ -4,17 +4,22 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.sistr.lmml.client.CompatEntityRenderMath;
+import net.sistr.lmml.config.LMRConfig;
 import net.sistr.lmml.entity.MultiModelLoadEntity;
+import org.lwjgl.opengl.GL11;
 
 import java.util.Map;
 
 //新Rendererと旧Modelを繋ぐ
 //EntityModel継承であるため、ここまではバニラのLivingRenderer内で処理される
 public class ModelBaseSolo<T extends LivingEntity> extends ModelBaseNihil<T> implements IModelBaseMMM {
+
     public ModelMultiBase model;
+    public ResourceLocation[] textures;
 
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
@@ -23,72 +28,43 @@ public class ModelBaseSolo<T extends LivingEntity> extends ModelBaseNihil<T> imp
             return;
         }
 
-        ModelRenderer.matrixStack = matrixStackIn;
-        ModelRenderer.buffer = bufferIn;
-        ModelRenderer.packedLight = packedLightIn;
-        ModelRenderer.packedOverlay = packedOverlayIn;
-        ModelRenderer.red = red;
-        ModelRenderer.green = blue;
-        ModelRenderer.blue = green;
-        ModelRenderer.alpha = alpha;
+        float[] limb = CompatEntityRenderMath.getLimbSwing(entity, partialTicks);
+        float[] yawPitch = CompatEntityRenderMath.getYawPitch(entity, partialTicks);
 
-        float f = this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
-        float f1 = this.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
-        float headYaw = f1 - f;
+        float limbSwing = limb[0];
+        float limbSwingAmount = limb[1];
+        float ageInTicks = CompatEntityRenderMath.getAgeInTicks(entity, partialTicks);
+        float headYaw = yawPitch[0];
+        float headPitch = yawPitch[1];
 
-        boolean shouldSit = this.entity.isPassenger() && (this.entity.getRidingEntity() != null && this.entity.getRidingEntity().shouldRiderSit());
-        if (shouldSit && entity.getRidingEntity() instanceof LivingEntity) {
-            LivingEntity entitylivingbase = (LivingEntity) entity.getRidingEntity();
-            f = this.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset, partialTicks);
-            headYaw = f1 - f;
-            float f3 = MathHelper.wrapDegrees(headYaw);
+        //法線の再計算
+        //GL11.glEnable(GL11.GL_NORMALIZE);
 
-            if (f3 < -85.0F) {
-                f3 = -85.0F;
-            }
+        // 通常
+        //Minecraft.getInstance().getTextureManager().bindTexture(textures[0]);
+        ModelRenderer.setParam(matrixStackIn,
+                buffer.getBuffer(isAlphablend && LMRConfig.cfg_isModelAlphaBlend ?
+                        RenderType.getEntityTranslucent(textures[0]) :
+                        RenderType.getEntityCutoutNoCull(textures[0])),
+                packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        model.render(entityCaps, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch, 0.0625F, isRendering);
 
-            if (f3 >= 85.0F) {
-                f3 = 85.0F;
-            }
+        isAlphablend = false;
 
-            f = f1 - f3;
-
-            if (f3 * f3 > 2500.0F) {
-                f += f3 * 0.2F;
-            }
-
-            headYaw = f1 - f;
+        if (textures.length > 1 && textures[1] != null && renderCount == 0) {
+            ModelRenderer.setParam(matrixStackIn,
+                    buffer.getBuffer(RenderType.getEntityTranslucent(textures[1])),
+                    255, packedOverlayIn, red, green, blue, alpha);
+            model.render(entityCaps, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch, 0.0625F, isRendering);
         }
 
-        float headPitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
-        float ageInTicks = (float) entity.ticksExisted + partialTicks;
-        float limbSwingAmount = 0.0F;
-        float limbSwing = 0.0F;
-
-        if (!entity.isBeingRidden()) {
-            limbSwingAmount = entity.prevLimbSwingAmount + (entity.limbSwingAmount - entity.prevLimbSwingAmount) * partialTicks;
-            limbSwing = entity.limbSwing - entity.limbSwingAmount * (1.0F - partialTicks);
-
-            if (entity.isChild()) {
-                limbSwing *= 3.0F;
-            }
-
-            if (limbSwingAmount > 1.0F) {
-                limbSwingAmount = 1.0F;
-            }
-            headYaw = f1 - f; // Forge: Fix MC-1207
-        }
-
-        model.render(entityCaps, limbSwing, limbSwingAmount,
-                ageInTicks, headYaw, headPitch, 0.0625F, true);
-
-        super.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        renderCount++;
     }
 
     @Override
     public void setRotationAngles(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         if (model != null) {
-            model.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, 1, entityCaps);
+            model.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, 0.0625F, entityCaps);
         }
         super.setRotationAngles(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
     }
@@ -103,18 +79,6 @@ public class ModelBaseSolo<T extends LivingEntity> extends ModelBaseNihil<T> imp
             }
         }
         isAlphablend = true;
-    }
-
-    @Override
-    public RenderType getRenderTypeMM(ResourceLocation resourcelocation) {
-        if (resourcelocation == null) {
-            return RenderType.getCutout();
-        }
-        return RenderType.getEntityTranslucent(resourcelocation);
-    }
-
-    public ResourceLocation getEntityTexture(T entity) {
-        return ((MultiModelLoadEntity)entity).textureBox.getTextureName(((MultiModelLoadEntity) entity).color);
     }
 
     /**
