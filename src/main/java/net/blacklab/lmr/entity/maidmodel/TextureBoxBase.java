@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+//todo 大きな改変
 public abstract class TextureBoxBase {
 
 	public String textureName;

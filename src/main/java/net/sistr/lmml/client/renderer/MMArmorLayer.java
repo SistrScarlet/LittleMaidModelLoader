@@ -1,7 +1,7 @@
 package net.sistr.lmml.client.renderer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.blacklab.lmr.entity.maidmodel.IModelEntity;
+import net.blacklab.lmr.entity.maidmodel.IHasMultiModel;
 import net.blacklab.lmr.entity.maidmodel.ModelBaseDuo;
 import net.blacklab.lmr.entity.maidmodel.ModelBaseSolo;
 import net.blacklab.lmr.entity.maidmodel.ModelRenderer;
@@ -14,7 +14,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.ResourceLocation;
 
-public class MMArmorLayer<T extends LivingEntity & IModelEntity> extends LayerRenderer<T, ModelBaseSolo<T>> {
+public class MMArmorLayer<T extends LivingEntity & IHasMultiModel> extends LayerRenderer<T, ModelBaseSolo<T>> {
 
     private final MultiModelRenderer<T> renderer;
     private final ModelBaseDuo<T> model;

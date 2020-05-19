@@ -1,8 +1,6 @@
 package net.blacklab.lmr.entity.maidmodel;
 
-import net.minecraft.item.ArmorItem;
 import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.sistr.lmml.util.manager.ModelManager;
 
@@ -85,34 +83,8 @@ public class TextureBox extends TextureBoxBase {
 		return null;
 	}
 
-	public ResourceLocation getArmorTextureName(int pIndex, ItemStack itemstack) {
-		// indexは0x40,0x50番台
-		// lightも追加
-		if(itemstack.isEmpty() || !(itemstack.getItem() instanceof ArmorItem)) return null;
-		int renderIndex = getArmorRenderIndex(((ArmorItem) itemstack.getItem()).getArmorMaterial());
-
-		int l = 0;
-		if (itemstack.getMaxDamage() > 0) {
-			l = (10 * itemstack.getDamage() / itemstack.getMaxDamage());
-		}
-
-		if (armors.isEmpty() || itemstack.isEmpty()) return null;
-		if (!(itemstack.getItem() instanceof ArmorItem)) return null;
-
-		// 不具合修正
-		// 他MODの影響と思われるが、インデックスがarmorFilenamePrefixのサイズをオーバーしクラッシュすることがあるので丸める
-		// http://forum.minecraftuser.jp/viewtopic.php?f=13&t=23347&start=160#p211172
-		if(renderIndex >= ModelManager.armorFilenamePrefix.length && ModelManager.armorFilenamePrefix.length > 0)
-		{
-			renderIndex = renderIndex % ModelManager.armorFilenamePrefix.length;
-		}
-		//他のMODのアーマーでrenderIndexが-1の場合armorFilenamePrefixのArrayIndexOutOfBoundsExceptionとなる
-		if (renderIndex < 0) {
-			//革製品に強制的に設定する
-			renderIndex = 0;
-		}
-
-		return getArmorTextureName(pIndex, ModelManager.armorFilenamePrefix[renderIndex], l);
+	public ResourceLocation getArmorTextureName(int pIndex) {
+		return getArmorTextureName(pIndex, ModelManager.armorFilenamePrefix[3], 0);
 	}
 
 	public static int getArmorRenderIndex(IArmorMaterial armorMaterial) {

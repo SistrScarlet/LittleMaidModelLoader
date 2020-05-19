@@ -1,7 +1,9 @@
 package net.sistr.lmml.entity;
 
 
-import net.blacklab.lmr.entity.maidmodel.*;
+import net.blacklab.lmr.entity.maidmodel.IHasMultiModel;
+import net.blacklab.lmr.entity.maidmodel.ModelMultiBase;
+import net.blacklab.lmr.entity.maidmodel.TextureBox;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
@@ -11,55 +13,40 @@ import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.sistr.lmml.LittleMaidModelLoader;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.fml.network.NetworkHooks;
+import net.sistr.lmml.container.ModelSelectGUIContainer;
 import net.sistr.lmml.setup.Registration;
 import net.sistr.lmml.util.manager.ModelManager;
 
-public class MultiModelLoadEntity extends CreatureEntity implements IModelEntity {
-    /**
-     * メイドカラー(byte)
-     */
-    protected static final DataParameter<Byte> TEXTURE_COLOR = EntityDataManager.createKey(MultiModelLoadEntity.class, DataSerializers.BYTE);
-    /**
-     * テクスチャ関連のデータを管理
-     **/
-    private final ModelConfigCompound textureData;
+import javax.annotation.Nullable;
 
-    public EntityCaps caps;//Client側のみ
-    //モデル
-    protected String textureNameMain;
-    protected String textureNameArmor;
+//実装例みたいな
+//こいつを直接継承はしないでくだちい
+public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiModel, IEntityAdditionalSpawnData {
+    private final DefaultMultiModel comp = new DefaultMultiModel(this,
+            ModelManager.instance.getDefaultTexture(this),
+            ModelManager.instance.getDefaultTexture(this));
 
     public MultiModelLoadEntity(EntityType<MultiModelLoadEntity> type, World worldIn) {
         super(type, worldIn);
-        //モデルレンダリング用のフラグ獲得用ヘルパー関数
-        caps = new EntityCaps(this);
-        textureData = new ModelConfigCompound(this, caps);
-        // 形態形成場
-        textureData.setColor((byte) 0xc);
-        TextureBox[] ltb = new TextureBox[2];
-        ltb[0] = ltb[1] = ModelManager.instance.getDefaultTexture(this);
-        setTexturePackName(ltb);
     }
 
     public MultiModelLoadEntity(World world) {
         super(Registration.MULTI_MODEL_LOAD_ENTITY.get(), world);
-        //モデルレンダリング用のフラグ獲得用ヘルパー関数
-        caps = new EntityCaps(this);
-        textureData = new ModelConfigCompound(this, caps);
-        // 形態形成場
-        textureData.setColor((byte) 0xc);
-        TextureBox[] ltb = new TextureBox[2];
-        ltb[0] = ltb[1] = ModelManager.instance.getDefaultTexture(this);
-        setTexturePackName(ltb);
     }
 
     @Override
@@ -68,7 +55,6 @@ public class MultiModelLoadEntity extends CreatureEntity implements IModelEntity
         this.goalSelector.addGoal(6, new WaterAvoidingRandomWalkingGoal(this, 1.0D));
         this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
         this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
-
     }
 
     @Override
@@ -78,103 +64,174 @@ public class MultiModelLoadEntity extends CreatureEntity implements IModelEntity
     }
 
     @Override
-    protected void registerData() {
-        super.registerData();
-        this.dataManager.register(TEXTURE_COLOR, (byte) 0);
+    public void writeAdditional(CompoundNBT compound) {
+        super.writeAdditional(compound);
+        comp.write(compound);
+    }
+
+    @Override
+    public void readAdditional(CompoundNBT compound) {
+        super.readAdditional(compound);
+        comp.read(compound);
+    }
+
+    //鯖
+    @Override
+    public void writeSpawnData(PacketBuffer buffer) {
+        TextureBox[] box = comp.getTextureBox();
+        buffer.writeString(box[0].textureName);
+        buffer.writeString(box[1].textureName);
+        buffer.writeByte(getColor());
+        buffer.writeBoolean(getContract());
+    }
+
+    //蔵
+    @Override
+    public void readSpawnData(PacketBuffer additionalData) {
+        setTextureBox(0, ModelManager.instance.getTextureBox(additionalData.readString()));
+        setTextureBox(1, ModelManager.instance.getTextureBox(additionalData.readString()));
+        setColor(additionalData.readByte());
+        setContract(additionalData.readBoolean());
+        updateTextures();
     }
 
     @Override
     protected boolean processInteract(PlayerEntity player, Hand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
-        if (itemstack.getItem() == Items.STICK) {
-            if (textureData.isContract()) {
-                TextureBox[] box = new TextureBox[2];
-                box[0] = box[1] = ModelManager.instance.getTextureBox(ModelManager.instance.getRandomTextureString(getRNG()));
-                textureData.setColor((byte) box[0].getRandomContractColor(getRNG()));
-                setTexturePackName(box);
+        if (itemstack.getItem() == Items.CAKE) {
+            if (getContract()) {
+                return false;
             }
-            textureData.setContract(true);
+            if (player.world.isRemote) {
+                return true;
+            }
+            setContract(true);
+            if (!player.abilities.isCreativeMode) {
+                itemstack.shrink(1);
+                if (itemstack.isEmpty()) {
+                    player.inventory.deleteStack(itemstack);
+                }
+            }
+            updateTextures();
+            sync();
             return true;
         }
-        if (!itemstack.isEmpty()) {
+        if (itemstack.getItem().isIn(ItemTags.WOOL)) {
+            if (!getContract()) {
+                return false;
+            }
+            if (player.world.isRemote) {
+                return true;
+            }
+            TextureBox[] box = new TextureBox[2];
+            box[0] = box[1] = ModelManager.instance.getTextureBox(ModelManager.instance.getRandomTextureString(getRNG()));
+            setColor((byte) box[0].getRandomContractColor(rand));
+            setTextureBox(0, box[0]);
+            setTextureBox(1, box[1]);
+            updateTextures();
+            sync();
+            return true;
+        }
+        if (itemstack.getItem().isIn(Tags.Items.DYES)) {
+            if (!getContract()) {
+                return false;
+            }
+            if (player.world.isRemote) {
+                return true;
+            }
+            setColor((byte) getTextureBox()[0].getRandomContractColor(getRNG()));
+            updateTextures();
+            sync();
+            return true;
+        }
+        if (!itemstack.isEmpty() && (itemstack.getItem() instanceof ArmorItem || itemstack.getEquipmentSlot() != null)) {
+            if (player.world.isRemote) {
+                return true;
+            }
             this.setItemStackToSlot(MobEntity.getSlotForItemStack(itemstack), itemstack);
             if (!player.abilities.isCreativeMode) {
                 itemstack.shrink(1);
+                if (itemstack.isEmpty()) {
+                    player.inventory.deleteStack(itemstack);
+                }
             }
-            if (player.world.isRemote) {
-                setTextureNames();
-            }
-
             return true;
         }
         return false;
     }
 
-    @Override
-    public void setTexturePackName(TextureBox[] pTextureBox) {
-        // Client
-        textureData.setTexturePackName(pTextureBox);
-        setTextureNames();
-        LittleMaidModelLoader.Debug("ID:%d, TextureModel:%s", getEntityId(), textureData.getTextureName(0));
-        // モデルの初期化
-        ((TextureBox) textureData.textureBox[0]).models[0].setCapsValue(IModelCaps.caps_changeModel, caps);
+    //GUI開くやつ
+    //未実装
+    public void openContainer(PlayerEntity player, ITextComponent text) {
+        player.openContainer(new SimpleNamedContainerProvider((windowId, inv, playerEntity) ->
+                new ModelSelectGUIContainer(windowId), text));
+    }
+
+    public void sync() {
+        if (world.isRemote) {
+            return;
+        }
+        comp.sync();
     }
 
     @Override
-    public void setColor(byte index) {
-        textureData.setColor(index);
-        dataManager.set(TEXTURE_COLOR, index);
+    public void updateTextures() {
+        comp.updateTextures();
+    }
+
+    @Override
+    public void setTextures(int index, ResourceLocation[] names) {
+        comp.setTextures(index, names);
+    }
+
+    @Override
+    public ResourceLocation[] getTextures(int index) {
+        return comp.getTextures(index);
+    }
+
+    @Override
+    public void setMultiModels(int index, ModelMultiBase models) {
+        comp.setMultiModels(index, models);
+    }
+
+    @Override
+    public ModelMultiBase[] getMultiModels() {
+        return comp.getMultiModels();
+    }
+
+    @Override
+    public void setColor(byte color) {
+        comp.setColor(color);
     }
 
     @Override
     public byte getColor() {
-        return dataManager.get(TEXTURE_COLOR);
+        return comp.getColor();
     }
 
     @Override
-    public void setContract(boolean flag) {
-        textureData.setContract(flag);
+    public void setContract(boolean isContract) {
+        comp.setContract(isContract);
     }
 
     @Override
-    public boolean isContract() {
-        return false;
-    }
-
-    /**
-     * Client用
-     */
-    public void setTextureNames() {
-        textureData.setTextureNames();
-        if (getEntityWorld().isRemote) {
-            textureNameMain = textureData.getTextureName(0);
-            textureNameArmor = textureData.getTextureName(1);
-        }
-    }
-
-    //textureEntity
-    @Override
-    public void setTextureBox(TextureBoxBase[] pTextureBox) {
-        textureData.setTextureBox(pTextureBox);
+    public boolean getContract() {
+        return comp.getContract();
     }
 
     @Override
-    public TextureBoxBase[] getTextureBox() {
-        return textureData.getTextureBox();
+    public void setTextureBox(int index, @Nullable TextureBox textureBox) {
+        comp.setTextureBox(index, textureBox);
     }
 
     @Override
-    public void setTextures(int pIndex, ResourceLocation[] pNames) {
-        textureData.setTextures(pIndex, pNames);
+    public TextureBox[] getTextureBox() {
+        return comp.getTextureBox();
     }
 
+    //オーバーライドしなくても動くが、IEntityAdditionalSpawnDataが機能しない
     @Override
-    public ResourceLocation[] getTextures(int pIndex) {
-        return textureData.getTextures(pIndex);
-    }
-
-    @Override
-    public ModelConfigCompound getModelConfigCompound() {
-        return textureData;
+    public IPacket<?> createSpawnPacket() {
+        return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

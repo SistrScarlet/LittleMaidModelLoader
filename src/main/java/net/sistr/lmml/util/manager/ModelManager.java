@@ -1,6 +1,6 @@
 package net.sistr.lmml.util.manager;
 
-import net.blacklab.lmr.entity.maidmodel.IModelEntity;
+import net.blacklab.lmr.entity.maidmodel.IHasMultiModel;
 import net.blacklab.lmr.entity.maidmodel.ModelMultiBase;
 import net.blacklab.lmr.entity.maidmodel.TextureBox;
 import net.minecraft.entity.LivingEntity;
@@ -10,6 +10,7 @@ import net.sistr.lmml.config.LMRConfig;
 import net.sistr.lmml.util.loader.LMMultiModelHandler;
 import net.sistr.lmml.util.loader.LMTextureHandler;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.Map.Entry;
@@ -59,6 +60,7 @@ public class ModelManager {
     /**
      * テクスチャ名称の一致する物を返す。
      */
+    @Nullable
     public TextureBox getTextureBox(String pName) {
         for (TextureBox ltb : getTextureList()) {
             if (ltb.textureName.equals(pName)) {
@@ -202,7 +204,7 @@ public class ModelManager {
     /**
      * Entityに対応するデフォルトモデルを返す。
      */
-    public TextureBox getDefaultTexture(IModelEntity pEntity) {
+    public TextureBox getDefaultTexture(IHasMultiModel pEntity) {
         return getDefaultTexture(pEntity.getClass());
     }
 

@@ -16,7 +16,7 @@ import net.sistr.lmml.config.LMRConfig;
 //ただし互換性を維持するために、Soloのrenderにて、古いバージョンのrenderにすり替えている
 //足りない引数はメンバ変数への直接参照で補っている
 @OnlyIn(Dist.CLIENT)
-public class MultiModelRenderer<T extends LivingEntity & IModelEntity> extends LivingRenderer<T, ModelBaseSolo<T>> {
+public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends LivingRenderer<T, ModelBaseSolo<T>> {
 
     //メイド用モデル
     public final ModelBaseSolo<T> modelMain;
@@ -44,8 +44,6 @@ public class MultiModelRenderer<T extends LivingEntity & IModelEntity> extends L
     @Override
     public void render(T entityIn, float entityYaw, float partialTicks,
                        MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
-        modelMain.model = entityIn.getModelConfigCompound().textureModel[0];
-
         if (caps == null) {
             caps = new EntityCaps(entityIn);
         }
@@ -64,9 +62,10 @@ public class MultiModelRenderer<T extends LivingEntity & IModelEntity> extends L
 
     public void setModelValues(T entity, double x, double y, double z,
                                float yaw, float partialTicks, IModelCaps caps) {
-        modelMain.model = entity.getModelConfigCompound().textureModel[0];
-        modelFATT.modelInner = entity.getModelConfigCompound().textureModel[1];
-        modelFATT.modelOuter = entity.getModelConfigCompound().textureModel[2];
+        ModelMultiBase[] model  = entity.getMultiModels();
+        modelMain.model = model[0];
+        modelFATT.modelInner = model[1];
+        modelFATT.modelOuter = model[2];
         modelMain.textures = entity.getTextures(0);
         modelFATT.textureInner = entity.getTextures(1);
         modelFATT.textureOuter = entity.getTextures(2);
@@ -102,7 +101,7 @@ public class MultiModelRenderer<T extends LivingEntity & IModelEntity> extends L
 
     @Override
     public ResourceLocation getEntityTexture(T entity) {
-        ResourceLocation location = entity.getModelConfigCompound().getTextures(0)[0];
+        ResourceLocation location = entity.getTextures(0)[0];
         return location != null ? location : new ResourceLocation("");
     }
 

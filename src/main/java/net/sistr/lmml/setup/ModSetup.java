@@ -12,6 +12,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.sistr.lmml.network.Networking;
 import net.sistr.lmml.util.loader.LMFileLoader;
 import net.sistr.lmml.util.manager.ModelManager;
 
@@ -29,6 +30,8 @@ public class ModSetup {
     };
 
     public static void init(final FMLCommonSetupEvent event) {
+
+        Networking.registerMessages();
 
         //リトルメイドファイルローダー
         LMFileLoader.instance.load();
