@@ -59,7 +59,8 @@ public class DefaultMultiModel implements IHasMultiModel {
         int mainColor = (color & 0x00ff) + (contract ? 0 : ModelManager.tx_wild);
         int growColor = (color & 0x00ff) + (contract ? ModelManager.tx_eyecontract : ModelManager.tx_eyewild);
         if (!mainBox.hasColor(mainColor)) {//クライアントに存在しない色が指定された場合、読み込める別の色を読み込む。
-            mainColor = contract ? mainBox.getRandomContractColor(owner.world.rand) : mainBox.getRandomContractColor(owner.world.rand);
+            mainColor = contract ? mainBox.getRandomContractColor(owner.world.rand) : mainBox.getRandomWildColor(owner.world.rand);
+            setColor((byte) mainColor);
         }
         if (mainBox.hasColor(mainColor)) {
             textures[0][0] = mainBox.getTextureName(mainColor);
@@ -90,8 +91,17 @@ public class DefaultMultiModel implements IHasMultiModel {
     public void write(CompoundNBT compound) {
         compound.putByte("ModelColor", this.getColor());
         compound.putBoolean("IsContract", this.getContract());
-        compound.putString("MaidModel", this.getTextureBox()[0].textureName);
-        compound.putString("ArmorModel", this.getTextureBox()[1].textureName);
+        TextureBox[] boxes = this.getTextureBox();
+        if (boxes != null) {
+            if (boxes[0] != null) {
+                compound.putString("MaidModel", this.getTextureBox()[0].textureName);
+            }
+            if (boxes[1] != null) {
+                compound.putString("ArmorModel", this.getTextureBox()[1].textureName);
+            }
+
+        }
+
     }
 
     //サーバーでしか動かんので注意

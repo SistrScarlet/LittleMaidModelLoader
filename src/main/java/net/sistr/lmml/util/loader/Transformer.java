@@ -1,7 +1,7 @@
 package net.sistr.lmml.util.loader;
 
 import com.google.common.collect.Lists;
-import net.sistr.lmml.config.LMRConfig;
+import net.sistr.lmml.config.LMMLConfig;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -70,7 +70,7 @@ public class Transformer implements Opcodes {
 
 	public static void Debug(String pText, Object... pData) {
 		// デバッグメッセージ
-		if(LMRConfig.cfg_PrintDebugMessage)
+		if(LMMLConfig.cfg_PrintDebugMessage)
 		{
 			System.out.println(String.format("Transformer-" + pText, pData));
 		}

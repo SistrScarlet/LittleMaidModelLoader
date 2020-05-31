@@ -6,7 +6,7 @@ import net.blacklab.lmr.entity.maidmodel.TextureBox;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.sistr.lmml.LittleMaidModelLoader;
-import net.sistr.lmml.config.LMRConfig;
+import net.sistr.lmml.config.LMMLConfig;
 import net.sistr.lmml.util.loader.LMMultiModelHandler;
 import net.sistr.lmml.util.loader.LMTextureHandler;
 
@@ -255,7 +255,7 @@ public class ModelManager {
 
             } catch (Exception e) {
                 LittleMaidModelLoader.LOGGER.error(String.format("ModelManager-MultiModelInstanceException : %s", ""));
-                if (LMRConfig.cfg_PrintDebugMessage) e.printStackTrace();
+                if (LMMLConfig.cfg_PrintDebugMessage) e.printStackTrace();
             }
 
         }

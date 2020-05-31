@@ -3,7 +3,7 @@ package net.sistr.lmml.util.loader;
 import com.google.common.collect.Lists;
 import net.blacklab.lmr.entity.maidmodel.ModelMultiBase;
 import net.sistr.lmml.LittleMaidModelLoader;
-import net.sistr.lmml.config.LMRConfig;
+import net.sistr.lmml.config.LMMLConfig;
 import net.sistr.lmml.util.loader.resource.ResourceFileHelper;
 import org.apache.commons.compress.utils.IOUtils;
 
@@ -135,7 +135,7 @@ public class LMMultiModelHandler implements ILMFileLoaderHandler {
 
         } catch (Exception e) {//読み込みに失敗 = 外部から読み込んだクラスは変換してストックする
             LittleMaidModelLoader.LOGGER.error(String.format("LMMultiModelHandler-Exception : %s", path));
-            if (LMRConfig.cfg_PrintDebugMessage) e.printStackTrace();
+            if (LMMLConfig.cfg_PrintDebugMessage) e.printStackTrace();
 
             try {
                 byte[] classFile = transformer.transform(classpath, path, IOUtils.toByteArray(inputstream));
@@ -170,14 +170,14 @@ public class LMMultiModelHandler implements ILMFileLoaderHandler {
                         iterator.remove();
                     }
                 } catch (Throwable t) {
-                    if (LMRConfig.cfg_PrintDebugMessage) t.printStackTrace();
+                    if (LMMLConfig.cfg_PrintDebugMessage) t.printStackTrace();
                 }
             }
         }
         classHolder.clear();//用済み
 
         //キャッシュファイルを出力する
-        if (LMRConfig.cfg_loader_is_cache) {
+        if (false/*LMRConfig.cfg_loader_is_cache*/) {
 
             //キャッシュファイル出力用に変換する
             Map<String, String> cachemultiModelClassMap = new HashMap<>();

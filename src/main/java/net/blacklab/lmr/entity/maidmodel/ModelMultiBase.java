@@ -23,7 +23,7 @@ public abstract class ModelMultiBase extends ModelBase implements IModelCaps {
     public ModelRenderer mainFrame;
     public ModelRenderer HeadMount;
     public ModelRenderer HeadTop;
-    public ModelRenderer[] Arms;
+    public ModelRenderer[] Arms;//right0/left1?
     public ModelRenderer[] HardPoint;
 
     public float entityIdFactor;

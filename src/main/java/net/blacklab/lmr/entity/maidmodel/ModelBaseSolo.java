@@ -4,13 +4,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.sistr.lmml.client.CompatEntityRenderMath;
-import net.sistr.lmml.config.LMRConfig;
-import net.sistr.lmml.entity.MultiModelLoadEntity;
-import org.lwjgl.opengl.GL11;
 
 import java.util.Map;
 
@@ -37,13 +33,10 @@ public class ModelBaseSolo<T extends LivingEntity> extends ModelBaseNihil<T> imp
         float headYaw = yawPitch[0];
         float headPitch = yawPitch[1];
 
-        //法線の再計算
-        //GL11.glEnable(GL11.GL_NORMALIZE);
-
         // 通常
-        //Minecraft.getInstance().getTextureManager().bindTexture(textures[0]);
+        //todo アルファブレンド設定が要れば
         ModelRenderer.setParam(matrixStackIn,
-                buffer.getBuffer(isAlphablend && LMRConfig.cfg_isModelAlphaBlend ?
+                buffer.getBuffer(isAlphablend /*&& LMRConfig.cfg_isModelAlphaBlend*/ ?
                         RenderType.getEntityTranslucent(textures[0]) :
                         RenderType.getEntityCutoutNoCull(textures[0])),
                 packedLightIn, packedOverlayIn, red, green, blue, alpha);

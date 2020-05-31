@@ -1,7 +1,6 @@
 package net.sistr.lmml.util.loader;
 
 import net.sistr.lmml.LittleMaidModelLoader;
-import net.sistr.lmml.config.LMRConfig;
 import net.sistr.lmml.util.loader.resource.ResourceFileHelper;
 
 import java.io.InputStream;
@@ -135,7 +134,7 @@ public class LMTextureHandler implements ILMFileLoaderHandler {
     public void postLoadHandler() {
 
         //キャッシュファイルを出力する
-        if (LMRConfig.cfg_loader_is_cache) {
+        if (false/*LMRConfig.cfg_loader_is_cache*/) {
             ResourceFileHelper.writeToJson(this.cacheFileName, textureMap);
         }
 

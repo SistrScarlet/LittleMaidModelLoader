@@ -6,10 +6,10 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.sistr.lmml.config.LMRConfig;
 
 //ココ->Solo->ModelBase
 //LivingRendererの処理を流用
@@ -29,16 +29,17 @@ public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends
         super(rendererManager, new ModelBaseSolo<>(), 0.5F);
         //アーマー描画用モデル初期化
         modelFATT = new ModelBaseDuo<>(this);
-        modelFATT.isModelAlphablend = LMRConfig.cfg_isModelAlphaBlend;
+        modelFATT.isModelAlphablend = true;/*LMRConfig.cfg_isModelAlphaBlend*/;
         modelFATT.isRendering = true;
 
         //メイド本体描画用モデル初期化
         modelMain = new ModelBaseSolo<>();
-        modelMain.isModelAlphablend = LMRConfig.cfg_isModelAlphaBlend;
+        modelMain.isModelAlphablend = true;/*LMRConfig.cfg_isModelAlphaBlend*/;
         modelMain.capsLink = modelFATT;
         entityModel = modelMain;
 
         this.addLayer(new MMArmorLayer<>(this));
+        this.addLayer(new MMHeldItemLayer<>(this));
     }
 
     @Override
@@ -89,7 +90,7 @@ public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends
         modelMain.setCapsValue(IModelCaps.caps_heldItemLeft, 0);
         modelMain.setCapsValue(IModelCaps.caps_heldItemRight, 0);
         modelMain.setCapsValue(IModelCaps.caps_isRiding, entity.isBeingRidden());
-        modelMain.setCapsValue(IModelCaps.caps_isSneak, entity.isShiftKeyDown());
+        modelMain.setCapsValue(IModelCaps.caps_isSneak, entity.isSneaking());
         modelMain.setCapsValue(IModelCaps.caps_aimedBow, false);
         modelMain.setCapsValue(IModelCaps.caps_isWait, false);
         modelMain.setCapsValue(IModelCaps.caps_isChild, entity.isChild());
@@ -97,6 +98,10 @@ public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends
         modelMain.setCapsValue(IModelCaps.caps_ticksExisted, entity.ticksExisted);
         //カスタム設定
         modelMain.setCapsValue(IModelCaps.caps_motionSitting, false);
+
+        float main = entity.swingingHand == Hand.MAIN_HAND ? entity.getSwingProgress(partialTicks) : 0;
+        float off = entity.swingingHand == Hand.OFF_HAND ? entity.getSwingProgress(partialTicks) : 0;
+        modelMain.setCapsValue(IModelCaps.caps_onGround, main, off);
     }
 
     @Override

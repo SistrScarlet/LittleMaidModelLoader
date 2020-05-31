@@ -1,7 +1,7 @@
 package net.sistr.lmml;
 
 import net.minecraft.client.Minecraft;
-import net.sistr.lmml.config.LMRConfig;
+import net.sistr.lmml.config.LMMLConfig;
 import net.sistr.lmml.setup.*;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -33,7 +33,7 @@ public class LittleMaidModelLoader {
 
     //あとで置き換える
     public static void Debug(String pText, Object... pVals) {
-        if (LMRConfig.cfg_PrintDebugMessage) {
+        if (LMMLConfig.cfg_PrintDebugMessage) {
             System.out.println(String.format("littleMaidMob-" + pText, pVals));
         }
 

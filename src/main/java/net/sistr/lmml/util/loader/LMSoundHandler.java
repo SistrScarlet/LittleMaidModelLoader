@@ -1,6 +1,5 @@
 package net.sistr.lmml.util.loader;
 
-import net.sistr.lmml.config.LMRConfig;
 import net.sistr.lmml.util.loader.resource.JsonResourceLittleMaidSound;
 import net.sistr.lmml.util.loader.resource.ResourceFileHelper;
 
@@ -57,7 +56,7 @@ public class LMSoundHandler implements ILMFileLoaderHandler {
 	public void init() {
 		
 		//キャッシュ機能の利用可否
-		if (!LMRConfig.cfg_loader_is_cache) return;
+		if (true/*!LMRConfig.cfg_loader_is_cache*/) return;
 		
 		//キャッシュファイルの読み込み
 		resourceLittleMaidSound = ResourceFileHelper.readFromJson(this.cacheFileName, JsonResourceLittleMaidSound.class);
@@ -255,7 +254,7 @@ public class LMSoundHandler implements ILMFileLoaderHandler {
 		}
 		
 		//キャッシュファイルを出力する
-		if (LMRConfig.cfg_loader_is_cache) {
+		if (false/*LMRConfig.cfg_loader_is_cache*/) {
 			ResourceFileHelper.writeToJson(this.cacheFileName, resourceLittleMaidSound);
 		}	
 	}

@@ -138,7 +138,7 @@ public class EntityCaps implements IModelCaps {
             case caps_isDead:
                 return !owner.isAlive();
             case caps_isSneak:
-                return owner.isShiftKeyDown();
+                return owner.isSneaking();
             case caps_isBurning:
                 return owner.isBurning();
             case caps_isInWater:

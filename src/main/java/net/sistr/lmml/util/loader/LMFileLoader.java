@@ -2,7 +2,7 @@ package net.sistr.lmml.util.loader;
 
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.sistr.lmml.LittleMaidModelLoader;
-import net.sistr.lmml.config.LMRConfig;
+import net.sistr.lmml.config.LMMLConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -79,7 +79,7 @@ public class LMFileLoader {
             filePathList = getLoadPath();
         } catch (Exception e) {
             LittleMaidModelLoader.LOGGER.error("LMFileLoader-Exception : getLoadPath");
-            if (LMRConfig.cfg_PrintDebugMessage) e.printStackTrace();
+            if (LMMLConfig.cfg_PrintDebugMessage) e.printStackTrace();
             return;
         }
 
@@ -116,7 +116,7 @@ public class LMFileLoader {
                 }
             } catch (Exception e) {
                 LittleMaidModelLoader.LOGGER.error(String.format("LMFileLoader-LoadException : %s", loaderPath.path.toString()));
-                if (LMRConfig.cfg_PrintDebugMessage) e.printStackTrace();
+                if (LMMLConfig.cfg_PrintDebugMessage) e.printStackTrace();
             }
         }
 
