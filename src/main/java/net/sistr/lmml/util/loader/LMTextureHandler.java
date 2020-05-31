@@ -21,14 +21,15 @@ public class LMTextureHandler implements ILMFileLoaderHandler {
     /**
      * テクスチャ保管用
      */
+    //新textures/、旧mob/
     public static Map<String, List<String>> textureMap = new TreeMap<>();
 
     /**
      * テクスチャが存在する階層設定
      */
     private static final List<String> lmTexturePath = Arrays.asList(
-            "assets/minecraft/textures/entity/ModelMulti/",
-            "assets/minecraft/textures/entity/littleMaid/",
+            "textures/entity/ModelMulti/",
+            "textures/entity/littleMaid/",
             "mob/ModelMulti/",
             "mob/littleMaid/");
 
@@ -95,11 +96,16 @@ public class LMTextureHandler implements ILMFileLoaderHandler {
      * 　ModelMultiBaseを継承しているかはこのタイミングでチェックする
      * 　クラス名から識別子を削除した名称をモデルIDとして登録する
      */
+    //pathは"assets/minecraft/textures/entity/littleMaid"または"mob/littleMaid"で始まる
     @Override
     public void loadHandler(String path, Path filePath, InputStream inputstream) {
         //ResourceLocationが受け付けない文字をはじく
         //大文字もtoLowercaseで小文字に
         path = path.toLowerCase().replaceAll("[^a-z0-9/._\\-]", "-");
+        //新はtextures/から、旧はmob/から始まるようにする
+        if (path.startsWith("assets/minecraft/")) {
+            path = path.toLowerCase().replace("assets/minecraft/", "");
+        }
 
         //マイクラ側にリソースを読み込ませる
         if (filePath != null) {

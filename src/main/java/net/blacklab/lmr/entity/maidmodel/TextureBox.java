@@ -208,11 +208,8 @@ public class TextureBox extends TextureBoxBase {
 		return lbox;
 	}
 
+	//locationは"textures/"から始まる
 	public boolean addTexture(int pIndex, String pLocation) {
-		String ls = "/assets/minecraft/";
-		if (pLocation.startsWith(ls)) {
-			pLocation = pLocation.substring(ls.length());
-		}
 		switch ((pIndex & 0xfff0)) {
 		case ModelManager.tx_armor1:
 		case ModelManager.tx_armor2:
@@ -220,7 +217,7 @@ public class TextureBox extends TextureBoxBase {
 		case ModelManager.tx_armor2light:
 		case ModelManager.tx_oldarmor1:
 		case ModelManager.tx_oldarmor2:
-			ls = pLocation.substring(pLocation.lastIndexOf("/") + 1, pLocation.lastIndexOf("_"));
+			String ls = pLocation.substring(pLocation.lastIndexOf("/") + 1, pLocation.lastIndexOf("_"));
 			Map<Integer, ResourceLocation> lmap;
 			if (armors.containsKey(ls)) {
 				lmap = armors.get(ls);

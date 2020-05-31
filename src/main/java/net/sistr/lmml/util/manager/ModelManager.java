@@ -79,7 +79,7 @@ public class ModelManager {
         TextureBox lbox = new TextureBox("Crafter_Steve", new String[]{"", "", ""});
         lbox.fileName = "";
 
-        lbox.addTexture(0x0c, "/assets/minecraft/textures/entity/lmsteve/steve.png");
+        lbox.addTexture(0x0c, "textures/entity/lmsteve/steve.png");
         if (armorFilenamePrefix != null && armorFilenamePrefix.length > 0) {
             for (String ls : armorFilenamePrefix) {
                 Map<Integer, ResourceLocation> lmap = new HashMap<>();
@@ -269,12 +269,10 @@ public class ModelManager {
 
             //TextureBoxにテクスチャを登録
             for (String texturePath : LMTextureHandler.textureMap.get(key)) {
-                //bind用texture
-                String bindTexturePath = texturePath.replace("assets/minecraft/", "");
                 int colorIndex = LMTextureHandler.getColorIndex(texturePath);
 
                 //colorごとに追加
-                textureBox.addTexture(colorIndex, bindTexturePath);
+                textureBox.addTexture(colorIndex, texturePath);
 
             }
 

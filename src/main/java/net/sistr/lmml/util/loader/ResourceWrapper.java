@@ -42,14 +42,13 @@ public class ResourceWrapper implements IResourcePack {
     public InputStream getResourceStream(ResourcePackType type, ResourceLocation location) throws IOException {
         String path = location.getPath();
         String packFullPath = PATHS.get(path);
-        String zipPath = "assets/minecraft/".concat(location.getPath());
         //zipまたはjarを開き、pathと一致するものを探す
         ZipInputStream zipStream = new ZipInputStream(Files.newInputStream(Paths.get(packFullPath)));
         ZipEntry zipEntry;
         while ((zipEntry = zipStream.getNextEntry()) != null) {
             //assets/minecraft/textures...
             String zPath = zipEntry.getName().toLowerCase().replaceAll("[^A-Za-z0-9/._\\-]", "-");
-            if (zipPath.equals(zPath)) {
+            if (zPath.contains(path)) {
                 return zipStream;
             }
         }
@@ -93,10 +92,10 @@ public class ResourceWrapper implements IResourcePack {
 
     }
 
-    //pathはzip内のassetsから始まるテクスチャのパス
-    //packFullPathはc:/から始まるパックのファイルパス
+    //pathはzip内の"textures/"または"mob/"から始まるテクスチャのパス
+    //packFullPathは"c:/"から始まるパックのファイルパス
     public static void addTexturePath(String path, String packFullPath) {
-        PATHS.put(path.toLowerCase().replace("assets/minecraft/", ""), packFullPath.toLowerCase());
+        PATHS.put(path, packFullPath.toLowerCase());
     }
 
     public static ImmutableMap<String, String> getReadOnlyPaths() {
