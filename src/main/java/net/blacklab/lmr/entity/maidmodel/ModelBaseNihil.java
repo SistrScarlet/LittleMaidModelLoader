@@ -37,6 +37,7 @@ public class ModelBaseNihil<T extends LivingEntity> extends EntityModel<T> {
 
 	//追加/変更メソッズ
 
+	//実はIVertexBuilder未使用。一応渡してはいるけど
 	@Override
 	public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
 		renderCount++;

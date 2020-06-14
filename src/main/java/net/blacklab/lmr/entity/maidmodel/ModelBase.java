@@ -15,7 +15,7 @@ public abstract class ModelBase extends AbstractModelBase {
     // ModelBaseとある程度互換
     public int textureWidth = 64;
     public int textureHeight = 32;
-    public float[] onGrounds = new float[] {0.0F, 0.0F};
+    public float[] onGrounds = new float[] {0.0F, 0.0F};//R L
     public int dominantArm = 0;
     public boolean isRiding = false;
     public boolean isChild = true;

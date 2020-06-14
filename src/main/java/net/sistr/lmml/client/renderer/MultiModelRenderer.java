@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
+import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,7 +18,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 //足りない引数はメンバ変数への直接参照で補っている
 @OnlyIn(Dist.CLIENT)
 public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends LivingRenderer<T, ModelBaseSolo<T>> {
-
     //メイド用モデル
     public final ModelBaseSolo<T> modelMain;
     //メイド防具用モデル
@@ -99,9 +99,23 @@ public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends
         //カスタム設定
         modelMain.setCapsValue(IModelCaps.caps_motionSitting, false);
 
-        float main = entity.swingingHand == Hand.MAIN_HAND ? entity.getSwingProgress(partialTicks) : 0;
-        float off = entity.swingingHand == Hand.OFF_HAND ? entity.getSwingProgress(partialTicks) : 0;
-        modelMain.setCapsValue(IModelCaps.caps_onGround, main, off);
+        float swingProgress = entity.getSwingProgress(partialTicks);
+        float right = 0;
+        float left = 0;
+        if (entity.swingingHand == Hand.MAIN_HAND) {
+            if (entity.getPrimaryHand() == HandSide.RIGHT) {
+                right = swingProgress;
+            } else {
+                left = swingProgress;
+            }
+        } else {
+            if (entity.getPrimaryHand() != HandSide.RIGHT) {
+                right = swingProgress;
+            } else {
+                left = swingProgress;
+            }
+        }
+        modelMain.setCapsValue(IModelCaps.caps_onGround, right, left);
     }
 
     @Override

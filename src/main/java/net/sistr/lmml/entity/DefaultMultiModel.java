@@ -3,7 +3,11 @@ package net.sistr.lmml.entity;
 import net.blacklab.lmr.entity.maidmodel.IHasMultiModel;
 import net.blacklab.lmr.entity.maidmodel.ModelMultiBase;
 import net.blacklab.lmr.entity.maidmodel.TextureBox;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -40,11 +44,11 @@ public class DefaultMultiModel implements IHasMultiModel {
             //基本 防具
             null, null
     };
-    private final Entity owner;
+    private final LivingEntity owner;
     private byte color;
     private boolean contract;
 
-    public DefaultMultiModel(Entity owner, TextureBox defaultMainBoxes, TextureBox defaultArmorBoxes) {
+    public DefaultMultiModel(LivingEntity owner, TextureBox defaultMainBoxes, TextureBox defaultArmorBoxes) {
         this.owner = owner;
         this.defaultMainBoxes = defaultMainBoxes;
         this.defaultArmorBoxes = defaultArmorBoxes;
@@ -73,10 +77,19 @@ public class DefaultMultiModel implements IHasMultiModel {
         }
         TextureBox armorBox = textureBox[1];
         for (int i = 0; i < 4; i++) {//頭～足で4回
-            textures[1][i] = armorBox.getArmorTextureName(ModelManager.tx_armor1);
-            textures[2][i] = armorBox.getArmorTextureName(ModelManager.tx_armor2);
-            textures[3][i] = armorBox.getArmorTextureName(ModelManager.tx_armor1light);
-            textures[4][i] = armorBox.getArmorTextureName(ModelManager.tx_armor2light);
+            String material = "default";
+            int damage = 0;
+            ItemStack armorStack = owner.getItemStackFromSlot(
+                    EquipmentSlotType.fromSlotTypeAndIndex(EquipmentSlotType.Group.ARMOR, 3 - i));
+            Item armor = armorStack.getItem();
+            if (armor instanceof ArmorItem) {
+                material = ((ArmorItem) armor).getArmorMaterial().getName();
+                damage = armorStack.getDamage();
+            }
+            textures[1][i] = armorBox.getArmorTextureName(ModelManager.tx_armor1, material, damage);
+            textures[2][i] = armorBox.getArmorTextureName(ModelManager.tx_armor2, material, damage);
+            textures[3][i] = armorBox.getArmorTextureName(ModelManager.tx_armor1light, material, damage);
+            textures[4][i] = armorBox.getArmorTextureName(ModelManager.tx_armor2light, material, damage);
         }
         models[1] = armorBox.models[1];
         models[2] = armorBox.models[2];
@@ -84,8 +97,12 @@ public class DefaultMultiModel implements IHasMultiModel {
 
     //鯖蔵同期
     public void sync() {
-        Networking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> owner),
-                new PacketSyncModel(owner.getEntityId(), textureBox[0].textureName, textureBox[1].textureName, color, contract));
+        if (!owner.world.isRemote) {
+            Networking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> owner),
+                    new PacketSyncModel(owner.getEntityId(), textureBox[0].textureName, textureBox[1].textureName, color, contract));
+        } else {
+            Networking.INSTANCE.sendToServer(new PacketSyncModel(owner.getEntityId(), textureBox[0].textureName, textureBox[1].textureName, color, contract));
+        }
     }
 
     public void write(CompoundNBT compound) {
@@ -101,7 +118,6 @@ public class DefaultMultiModel implements IHasMultiModel {
             }
 
         }
-
     }
 
     //サーバーでしか動かんので注意
@@ -170,5 +186,15 @@ public class DefaultMultiModel implements IHasMultiModel {
 
     public TextureBox[] getTextureBox() {
         return this.textureBox;
+    }
+
+    @Override
+    public boolean canRenderArmor(int index) {
+        return !owner.getItemStackFromSlot(EquipmentSlotType.fromSlotTypeAndIndex(EquipmentSlotType.Group.ARMOR, index)).isEmpty();
+    }
+
+    @Override
+    public void setCanRenderArmor(int index, boolean canRender) {
+
     }
 }

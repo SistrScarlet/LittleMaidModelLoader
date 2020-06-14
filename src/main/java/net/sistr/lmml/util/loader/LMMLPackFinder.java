@@ -20,7 +20,7 @@ public class LMMLPackFinder implements IPackFinder {
 
     @SuppressWarnings("unchecked")
     public <T extends ResourcePackInfo> void addPackInfosToMap(Map<String, T> nameToPackMap, ResourcePackInfo.IFactory<T> packInfoFactory) {
-        PackMetadataSection packMetadataSection = new PackMetadataSection(new StringTextComponent("LittleMaidModelLoader!!!"), 5);
+        PackMetadataSection packMetadataSection = new PackMetadataSection(new StringTextComponent("Little Maid Model Loader"), 5);
         T pack = (T) new ClientResourcePackInfo("lmml", true, () -> ResourceWrapper.INSTANCE,
                 new StringTextComponent(ResourceWrapper.INSTANCE.getName()), packMetadataSection.getDescription(),
                 PackCompatibility.getCompatibility(packMetadataSection.getPackFormat()), ResourcePackInfo.Priority.TOP,

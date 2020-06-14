@@ -1,6 +1,7 @@
 package net.sistr.lmml;
 
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.sistr.lmml.config.LMMLConfig;
 import net.sistr.lmml.setup.*;
 import net.minecraftforge.fml.DistExecutor;
@@ -21,8 +22,10 @@ public class LittleMaidModelLoader {
 
     public LittleMaidModelLoader() {
 
-        //リソースをマイクラに読み込ませるための―詳しくはLMMLPackFinderにて
-        Minecraft.getInstance().getResourcePackList().addPackFinder(new LMMLPackFinder());
+        if (FMLEnvironment.dist.isClient()) {
+            //リソースをマイクラに読み込ませるための―詳しくはLMMLPackFinderにて
+            Minecraft.getInstance().getResourcePackList().addPackFinder(new LMMLPackFinder());
+        }
 
         Registration.init();
 

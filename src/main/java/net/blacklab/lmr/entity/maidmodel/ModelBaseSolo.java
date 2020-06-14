@@ -74,25 +74,6 @@ public class ModelBaseSolo<T extends LivingEntity> extends ModelBaseNihil<T> imp
         isAlphablend = true;
     }
 
-    /**
-     * Returns a rotation angle that is inbetween two other rotation angles. par1 and par2 are the angles between which
-     * to interpolate, par3 is probably a float between 0.0 and 1.0 that tells us where "between" the two angles we are.
-     * Example: par1 = 30, par2 = 50, par3 = 0.5, then return = 40
-     */
-    protected float interpolateRotation(float prevYawOffset, float yawOffset, float partialTicks) {
-        float f = yawOffset - prevYawOffset;
-
-        while (f < -180.0F) {
-            f += 360.0F;
-        }
-
-        while (f >= 180.0F) {
-            f -= 360.0F;
-        }
-
-        return prevYawOffset + partialTicks * f;
-    }
-
     @Override
     public void renderItems(LivingEntity pEntity, EntityRenderer<?> pRender) {
         if (model != null) {

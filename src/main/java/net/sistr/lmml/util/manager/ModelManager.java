@@ -41,6 +41,8 @@ public class ModelManager {
     public static String[] armorFilenamePrefix = new String[]{
             "leather", "chainmail", "iron", "diamond", "gold"};
 
+    public static final ResourceLocation NULL_TEXTURE = new ResourceLocation(LittleMaidModelLoader.MODID, "textures/null.png");
+
     /**
      * ローカルで保持しているモデルのリスト
      */
@@ -94,24 +96,20 @@ public class ModelManager {
         textures.add(lbox);
     }
 
-    public TextureBox getNextPackege(TextureBox pNowBox, int pColor) {
+    public Optional<TextureBox> getNextPackege(TextureBox pNowBox, int pColor) {
         // 次のテクスチャパッケージの名前を返す
-        boolean f = false;
-        TextureBox lreturn = null;
-        for (TextureBox ltb : getTextureList()) {
-            if (ltb.hasColor(pColor)) {
-                if (f) {
-                    return ltb;
-                }
-                if (lreturn == null) {
-                    lreturn = ltb;
+        boolean checkedNowBox = false;
+        for (TextureBox box : getTextureList()) {
+            if (box.hasColor(pColor)) {
+                if (checkedNowBox) {
+                    return Optional.of(box);
                 }
             }
-            if (ltb == pNowBox) {
-                f = true;
+            if (box == pNowBox) {
+                checkedNowBox = true;
             }
         }
-        return lreturn;
+        return Optional.empty();
     }
 
     public TextureBox getPrevPackege(TextureBox pNowBox, int pColor) {

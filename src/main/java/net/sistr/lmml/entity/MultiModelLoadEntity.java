@@ -4,6 +4,7 @@ package net.sistr.lmml.entity;
 import net.blacklab.lmr.entity.maidmodel.IHasMultiModel;
 import net.blacklab.lmr.entity.maidmodel.ModelMultiBase;
 import net.blacklab.lmr.entity.maidmodel.TextureBox;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
@@ -13,7 +14,6 @@ import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -23,12 +23,12 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
-import net.sistr.lmml.container.ModelSelectGUIContainer;
+import net.sistr.lmml.client.ModelSelectScreen;
 import net.sistr.lmml.setup.Registration;
 import net.sistr.lmml.util.manager.ModelManager;
 
@@ -157,20 +157,19 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
             }
             return true;
         }
+        if (player.world.isRemote) {
+            openScreen(player);
+        }
         return false;
     }
 
     //GUI開くやつ
     //未実装
-    public void openContainer(PlayerEntity player, ITextComponent text) {
-        player.openContainer(new SimpleNamedContainerProvider((windowId, inv, playerEntity) ->
-                new ModelSelectGUIContainer(windowId), text));
+    public void openScreen(PlayerEntity player) {
+        Minecraft.getInstance().displayGuiScreen(new ModelSelectScreen(new StringTextComponent("test"), this, this, ~0));
     }
 
     public void sync() {
-        if (world.isRemote) {
-            return;
-        }
         comp.sync();
     }
 
@@ -227,6 +226,16 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
     @Override
     public TextureBox[] getTextureBox() {
         return comp.getTextureBox();
+    }
+
+    @Override
+    public boolean canRenderArmor(int index) {
+        return comp.canRenderArmor(index);
+    }
+
+    @Override
+    public void setCanRenderArmor(int index, boolean canRender) {
+        comp.setCanRenderArmor(index, canRender);
     }
 
     //オーバーライドしなくても動くが、IEntityAdditionalSpawnDataが機能しない

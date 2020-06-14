@@ -34,7 +34,7 @@ public class MMArmorLayer<T extends LivingEntity & IHasMultiModel> extends Layer
     }
 
     private void renderArmorPart(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, EquipmentSlotType slot, int packedLightIn) {
-        if (entity.getItemStackFromSlot(slot).isEmpty()) {
+        if (!entity.canRenderArmor(slot.getIndex())) {
             return;
         }
 
