@@ -88,7 +88,7 @@ public class ResourceWrapper implements IResourcePack {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 

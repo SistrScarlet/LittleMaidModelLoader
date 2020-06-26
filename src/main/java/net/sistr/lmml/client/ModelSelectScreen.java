@@ -1,6 +1,7 @@
 package net.sistr.lmml.client;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.blacklab.lmr.entity.maidmodel.IHasMultiModel;
 import net.blacklab.lmr.entity.maidmodel.ModelMultiBase;
@@ -67,12 +68,12 @@ public class ModelSelectScreen extends Screen {
     }
 
     @Override
-    public void init(Minecraft minecraft, int width, int height) {
-        super.init(minecraft, width, height);
-        modelGUI.init(minecraft, width, height);
-        armorGUI.init(minecraft, width, height);
-        this.addButton(new Button(this.width / 2 - 40, this.height - (this.height - HEIGHT) / 2 + 10, 80, 20,
-                new TranslationTextComponent("screen.littlemaidmodelloader.model_select_screen.change_screen").getFormattedText(),
+    public void func_231158_b_(Minecraft minecraft, int width, int height) {
+        super.func_231158_b_(minecraft, width, height);
+        modelGUI.func_231158_b_(minecraft, width, height);
+        armorGUI.func_231158_b_(minecraft, width, height);
+        this.func_230480_a_(new Button(field_230708_k_ / 2 - 40, field_230709_l_ - (field_230709_l_ - HEIGHT) / 2 + 10, 80, 20,
+                new TranslationTextComponent("screen.littlemaidmodelloader.model_select_screen.change_screen"),
                 button -> this.changeVisible()));
     }
 
@@ -81,46 +82,46 @@ public class ModelSelectScreen extends Screen {
     }
 
     @Override
-    public void setSize(int width, int height) {
-        super.setSize(width, height);
-        modelGUI.setSize(width, height);
-        armorGUI.setSize(width, height);
+    public void func_231152_a_(Minecraft minecraft, int width, int height) {
+        super.func_231152_a_(minecraft, width, height);
+        modelGUI.func_231152_a_(minecraft, width, height);
+        armorGUI.func_231152_a_(minecraft, width, height);
     }
 
     @Override
-    public void onClose() {
-        modelGUI.onClose();
-        armorGUI.onClose();
-        super.onClose();
+    public void func_231175_as__() {
+        modelGUI.func_231175_as__();
+        armorGUI.func_231175_as__();
+        super.func_231175_as__();
     }
 
     @Override
-    public boolean mouseScrolled(double x, double y, double scrollAmount) {
-        super.mouseScrolled(x, y, scrollAmount);
+    public boolean func_231043_a_(double x, double y, double scrollAmount) {
+        super.func_231043_a_(x, y, scrollAmount);
         if (isVisibleModelSelect) {
-            return modelGUI.mouseScrolled(x, y, scrollAmount);
+            return modelGUI.func_231043_a_(x, y, scrollAmount);
         } else {
-            return armorGUI.mouseScrolled(x, y, scrollAmount);
+            return armorGUI.func_231043_a_(x, y, scrollAmount);
         }
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
-        super.mouseClicked(x, y, button);
+    public boolean func_231048_c_(double x, double y, int button) {
+        super.func_231048_c_(x, y, button);
         if (isVisibleModelSelect) {
-            return modelGUI.mouseClicked(x, y, button);
+            return modelGUI.func_231048_c_(x, y, button);
         } else {
-            return armorGUI.mouseClicked(x, y, button);
+            return armorGUI.func_231048_c_(x, y, button);
         }
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks) {
-        super.render(mouseX, mouseY, partialTicks);
+    public void func_230430_a_(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        super.func_230430_a_(matrixStack, mouseX, mouseY, partialTicks);
         if (isVisibleModelSelect) {
-            modelGUI.render(mouseX, mouseY, partialTicks);
+            modelGUI.func_230430_a_(matrixStack, mouseX, mouseY, partialTicks);
         } else {
-            armorGUI.render(mouseX, mouseY, partialTicks);
+            armorGUI.func_230430_a_(matrixStack, mouseX, mouseY, partialTicks);
         }
     }
 
@@ -135,7 +136,7 @@ public class ModelSelectScreen extends Screen {
         }
 
         @Override
-        public void onClose() {
+        public void func_231175_as__() {
             boolean shouldSync = false;
             if (0 <= selectModelNumber && selectModelNumber < modelBoxes.size()) {
                 TextureBox mainBox = modelBoxes.get(selectModelNumber);
@@ -153,13 +154,13 @@ public class ModelSelectScreen extends Screen {
                 hasMultiModel.updateTextures();
                 hasMultiModel.sync();
             }
-            super.onClose();
+            super.func_231175_as__();
         }
 
         @Override
-        public boolean mouseClicked(double x, double y, int button) {
-            int relX = (this.width - this.sizeWidth) / 2;
-            int relY = (this.height - this.sizeHeight) / 2;
+        public boolean func_231048_c_(double x, double y, int button) {
+            int relX = (field_230708_k_ - this.sizeWidth) / 2;
+            int relY = (field_230709_l_ - this.sizeHeight) / 2;
             //モデル選択
             if (relX + offsetX < x && x < relX + offsetX + scale * 16
                     && relY + offsetY < y && y < relY + offsetY + layerSize * layerPile) {
@@ -178,24 +179,24 @@ public class ModelSelectScreen extends Screen {
         }
 
         @Override
-        public void render(int mouseX, int mouseY, float partialTicks) {
-            super.render(mouseX, mouseY, partialTicks);
+        public void func_230430_a_(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+            super.func_230430_a_(matrixStack, mouseX, mouseY, partialTicks);
 
             dummy.setCanRenderArmor(0, false);
             dummy.setCanRenderArmor(1, false);
             dummy.setCanRenderArmor(2, false);
             dummy.setCanRenderArmor(3, false);
 
-            int relX = (this.width - this.sizeWidth) / 2;
-            int relY = (this.height - this.sizeHeight) / 2;
+            int relX = (field_230708_k_ - this.sizeWidth) / 2;
+            int relY = (field_230709_l_ - this.sizeHeight) / 2;
             int posY = layerSize * scroll + offsetY;
             for (TextureBox textureBox : modelBoxes) {
                 //上下いずれかの端が画面外である場合は描画しない
                 if (offsetY <= posY && posY < layerSize * layerPile + offsetY) {
                     renderModelAllColor(relX + offsetX, relY + posY,
-                            this.width / 2F - mouseX, this.height / 2F - mouseY,
+                            field_230708_k_ / 2F - mouseX, field_230709_l_ / 2F - mouseY,
                             dummy, dummy, textureBox, true);
-                    font.drawString(textureBox.textureName, relX + offsetX, relY + posY, 0xFFFFFF);
+                    field_230712_o_.func_238421_b_(matrixStack, textureBox.textureName, relX + offsetX, relY + posY, 0xFFFFFF);
                 }
                 posY += layerSize;
             }
@@ -247,7 +248,7 @@ public class ModelSelectScreen extends Screen {
         }
 
         @Override
-        public void onClose() {
+        public void func_231175_as__() {
             boolean shouldSync = false;
             if (0 <= selectModelNumber && selectModelNumber < modelBoxes.size()) {
                 TextureBox armorBox = modelBoxes.get(selectModelNumber);
@@ -260,13 +261,13 @@ public class ModelSelectScreen extends Screen {
                 hasMultiModel.updateTextures();
                 hasMultiModel.sync();
             }
-            super.onClose();
+            super.func_231175_as__();
         }
 
         @Override
-        public boolean mouseClicked(double x, double y, int button) {
-            int relX = (this.width - this.sizeWidth) / 2;
-            int relY = (this.height - this.sizeHeight) / 2;
+        public boolean func_231048_c_(double x, double y, int button) {
+            int relX = (field_230708_k_ - this.sizeWidth) / 2;
+            int relY = (field_230709_l_ - this.sizeHeight) / 2;
             //モデル選択
             if (relX + offsetX < x && x < relX + offsetX + scale * 16
                     && relY + offsetY < y && y < relY + offsetY + layerSize * layerPile) {
@@ -279,24 +280,24 @@ public class ModelSelectScreen extends Screen {
         }
 
         @Override
-        public void render(int mouseX, int mouseY, float partialTicks) {
-            super.render(mouseX, mouseY, partialTicks);
+        public void func_230430_a_(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+            super.func_230430_a_(matrixStack, mouseX, mouseY, partialTicks);
 
             dummy.setCanRenderArmor(0, true);
             dummy.setCanRenderArmor(1, true);
             dummy.setCanRenderArmor(2, true);
             dummy.setCanRenderArmor(3, true);
 
-            int relX = (this.width - this.sizeWidth) / 2;
-            int relY = (this.height - this.sizeHeight) / 2;
+            int relX = (field_230708_k_ - this.sizeWidth) / 2;
+            int relY = (field_230709_l_ - this.sizeHeight) / 2;
             int posY = layerSize * scroll + offsetY;
             for (TextureBox textureBox : modelBoxes) {
                 //画面外は描画しない
                 if (offsetY <= posY && posY < layerSize * layerPile + offsetY) {
                     renderArmorModelAllMaterial(relX + offsetX, relY + posY,
-                            this.width / 2F - mouseX, this.height / 2F - mouseY,
+                            field_230708_k_ / 2F - mouseX, field_230709_l_ / 2F - mouseY,
                             dummy, dummy, textureBox);
-                    font.drawString(textureBox.textureName, relX + offsetX, relY + posY, 0xFFFFFF);
+                    field_230712_o_.func_238421_b_(matrixStack, textureBox.textureName, relX + offsetX, relY + posY, 0xFFFFFF);
                 }
                 posY += layerSize;
             }
@@ -372,19 +373,19 @@ public class ModelSelectScreen extends Screen {
         }
 
         @Override
-        public boolean mouseScrolled(double x, double y, double scrollAmount) {
+        public boolean func_231043_a_(double x, double y, double scrollAmount) {
             boolean scrollUp = 0 < scrollAmount;
             scroll = MathHelper.clamp(scroll + (scrollUp ? 1 : -1), 2 - modelBoxes.size(), 0);
             return true;
         }
 
         @Override
-        public void render(int mouseX, int mouseY, float partialTicks) {
+        public void func_230430_a_(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.minecraft.getTextureManager().bindTexture(MODEL_SELECT_GUI_TEXTURE);
-            int relX = (this.width - WIDTH) / 2;
-            int relY = (this.height - HEIGHT) / 2;
-            this.blit(relX, relY, 0, 0, WIDTH, HEIGHT);
+            this.field_230706_i_.getTextureManager().bindTexture(MODEL_SELECT_GUI_TEXTURE);
+            int relX = (field_230708_k_ - WIDTH) / 2;
+            int relY = (field_230709_l_ - HEIGHT) / 2;
+            this.func_238474_b_(matrixStack, relX, relY, 0, 0, WIDTH, HEIGHT);
         }
 
         protected static void drawColor(int x1, int y1, int x2, int y2, int z, int RGBA) {

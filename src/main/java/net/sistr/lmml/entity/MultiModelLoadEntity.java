@@ -8,7 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifierMap;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.LookAtGoal;
 import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
@@ -17,14 +18,18 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.ShootableItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -57,10 +62,16 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
         this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.23);
+    //@Override
+    //protected void registerAttributes() {
+    //    super.registerAttributes();
+    //    this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.23);
+    //}
+
+    public static AttributeModifierMap.MutableAttribute registerAttributes() {
+        return MobEntity.func_233666_p_().func_233815_a_(Attributes.field_233821_d_, 0.3F)
+                .func_233815_a_(Attributes.field_233818_a_, 8.0D)
+                .func_233815_a_(Attributes.field_233823_f_, 2.0D);
     }
 
     @Override
@@ -95,15 +106,15 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
         updateTextures();
     }
 
-    @Override
-    protected boolean processInteract(PlayerEntity player, Hand hand) {
+    //@Override
+    protected ActionResultType func_230254_b_(PlayerEntity player, Hand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
         if (itemstack.getItem() == Items.CAKE) {
             if (getContract()) {
-                return false;
+                return ActionResultType.PASS;
             }
             if (player.world.isRemote) {
-                return true;
+                return ActionResultType.CONSUME;
             }
             setContract(true);
             if (!player.abilities.isCreativeMode) {
@@ -114,14 +125,14 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
             }
             updateTextures();
             sync();
-            return true;
+            return ActionResultType.CONSUME;
         }
         if (itemstack.getItem().isIn(ItemTags.WOOL)) {
             if (!getContract()) {
-                return false;
+                return ActionResultType.PASS;
             }
             if (player.world.isRemote) {
-                return true;
+                return ActionResultType.CONSUME;
             }
             TextureBox[] box = new TextureBox[2];
             box[0] = box[1] = ModelManager.instance.getTextureBox(ModelManager.instance.getRandomTextureString(getRNG()));
@@ -130,23 +141,23 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
             setTextureBox(1, box[1]);
             updateTextures();
             sync();
-            return true;
+            return ActionResultType.CONSUME;
         }
         if (itemstack.getItem().isIn(Tags.Items.DYES)) {
             if (!getContract()) {
-                return false;
+                return ActionResultType.PASS;
             }
             if (player.world.isRemote) {
-                return true;
+                return ActionResultType.CONSUME;
             }
             setColor((byte) getTextureBox()[0].getRandomContractColor(getRNG()));
             updateTextures();
             sync();
-            return true;
+            return ActionResultType.CONSUME;
         }
         if (!itemstack.isEmpty() && (itemstack.getItem() instanceof ArmorItem || itemstack.getEquipmentSlot() != null)) {
             if (player.world.isRemote) {
-                return true;
+                return ActionResultType.CONSUME;
             }
             this.setItemStackToSlot(MobEntity.getSlotForItemStack(itemstack), itemstack);
             if (!player.abilities.isCreativeMode) {
@@ -155,16 +166,17 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
                     player.inventory.deleteStack(itemstack);
                 }
             }
-            return true;
+            return ActionResultType.CONSUME;
         }
         if (player.world.isRemote) {
             openScreen(player);
         }
-        return false;
+        return ActionResultType.PASS;
     }
 
     //GUI開くやつ
     //未実装
+    @OnlyIn(Dist.CLIENT)
     public void openScreen(PlayerEntity player) {
         Minecraft.getInstance().displayGuiScreen(new ModelSelectScreen(new StringTextComponent("test"), this, this, ~0));
     }

@@ -1,5 +1,10 @@
 package net.sistr.lmml.setup;
 
+import com.google.common.collect.ImmutableMap;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.AttributeModifierMap;
+import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -8,6 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.sistr.lmml.ForgeEventHandlers;
 import net.sistr.lmml.LittleMaidModelLoader;
+import net.sistr.lmml.entity.MultiModelLoadEntity;
 import net.sistr.lmml.network.Networking;
 import net.sistr.lmml.util.loader.LMFileLoader;
 import net.sistr.lmml.util.manager.ModelManager;
@@ -23,6 +29,12 @@ public class ModSetup {
     };
 
     public static void init(final FMLCommonSetupEvent event) {
+
+        GlobalEntityTypeAttributes.field_233833_b_ = ImmutableMap.<EntityType<? extends LivingEntity>, AttributeModifierMap>builder()
+                .putAll(GlobalEntityTypeAttributes.field_233833_b_)
+                .put(Registration.MULTI_MODEL_LOAD_ENTITY.get(), MultiModelLoadEntity.registerAttributes().func_233813_a_())
+                .put(Registration.MODEL_SELECTOR_DUMMY_ENTITY.get(), MultiModelLoadEntity.registerAttributes().func_233813_a_())
+                .build();
 
         Networking.registerMessages();
 
