@@ -89,7 +89,7 @@ public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends
 
         modelMain.setCapsValue(IModelCaps.caps_heldItemLeft, 0);
         modelMain.setCapsValue(IModelCaps.caps_heldItemRight, 0);
-        modelMain.setCapsValue(IModelCaps.caps_isRiding, entity.isBeingRidden());
+        modelMain.setCapsValue(IModelCaps.caps_isRiding, entity.isPassenger());
         modelMain.setCapsValue(IModelCaps.caps_isSneak, entity.isSneaking());
         modelMain.setCapsValue(IModelCaps.caps_aimedBow, false);
         modelMain.setCapsValue(IModelCaps.caps_isWait, false);

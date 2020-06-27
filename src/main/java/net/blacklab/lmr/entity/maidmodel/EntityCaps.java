@@ -130,7 +130,7 @@ public class EntityCaps implements IModelCaps {
             case caps_onGround:
                 return owner.onGround;
             case caps_isRiding:
-                return owner.isBeingRidden();
+                return owner.isPassenger();
             case caps_isRidingPlayer:
                 return owner.getRidingEntity() instanceof PlayerEntity;
             case caps_isWet:
@@ -243,8 +243,6 @@ public class EntityCaps implements IModelCaps {
             case caps_onGround:
                 owner.onGround = (Boolean) pArg[0];
                 return true;
-            case caps_isRiding:
-                return owner.isBeingRidden();
             case caps_isSneak:
                 owner.setSneaking((Boolean) pArg[0]);
         }
