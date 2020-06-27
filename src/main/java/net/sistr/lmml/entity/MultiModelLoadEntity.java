@@ -18,7 +18,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.ShootableItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
@@ -175,7 +174,6 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
     }
 
     //GUI開くやつ
-    //未実装
     @OnlyIn(Dist.CLIENT)
     public void openScreen(PlayerEntity player) {
         Minecraft.getInstance().displayGuiScreen(new ModelSelectScreen(new StringTextComponent("test"), this, this, ~0));

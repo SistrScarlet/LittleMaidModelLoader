@@ -21,20 +21,17 @@ import net.sistr.lmml.util.manager.ModelManager;
 @Mod.EventBusSubscriber(modid = LittleMaidModelLoader.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModSetup {
 
-    public static final ItemGroup ITEM_GROUP = new ItemGroup(LittleMaidModelLoader.MODID) {
+    /*public static final ItemGroup ITEM_GROUP = new ItemGroup(LittleMaidModelLoader.MODID) {
         @Override
         public ItemStack createIcon() {
             return new ItemStack(Items.CAKE);
         }
-    };
+    };*/
 
     public static void init(final FMLCommonSetupEvent event) {
 
-        GlobalEntityTypeAttributes.field_233833_b_ = ImmutableMap.<EntityType<? extends LivingEntity>, AttributeModifierMap>builder()
-                .putAll(GlobalEntityTypeAttributes.field_233833_b_)
-                .put(Registration.MULTI_MODEL_LOAD_ENTITY.get(), MultiModelLoadEntity.registerAttributes().func_233813_a_())
-                .put(Registration.MODEL_SELECTOR_DUMMY_ENTITY.get(), MultiModelLoadEntity.registerAttributes().func_233813_a_())
-                .build();
+        GlobalEntityTypeAttributes.put(Registration.MULTI_MODEL_LOAD_ENTITY.get(), MultiModelLoadEntity.registerAttributes().func_233813_a_());
+        GlobalEntityTypeAttributes.put(Registration.MODEL_SELECTOR_DUMMY_ENTITY.get(), MultiModelLoadEntity.registerAttributes().func_233813_a_());
 
         Networking.registerMessages();
 

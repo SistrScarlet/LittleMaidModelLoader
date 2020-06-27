@@ -57,6 +57,11 @@ public class Transformer implements Opcodes {
 			put("littleMaidMobX/EntityCaps", "net/blacklab/lmr/entity/maidmodel/EntityCaps");
 			put("net/blacklab/lmr/util/EntityCaps", "net/blacklab/lmr/entity/maidmodel/EntityCaps");
 			put("net/blacklab/lmr/entity/EntityLittleMaid", "net/blacklab/lmr/entity/littlemaid/EntityLittleMaid");
+			//バニラクラス
+			put("net/minecraft/entity/EntityLivingBase", "net/minecraft/entity/LivingEntity");
+			put("net/minecraft/entity/passive/EntityAnimal", "net/minecraft/entity/passive/AnimalEntity");
+			put("net/minecraft/entity/player/EntityPlayer", "net/minecraft/entity/player/PlayerEntity");
+			put("func_184187_bx", "getRidingEntity");
 		}
 		private void addModelClassToTransform(String pName) {
 			put("MMM_" + pName, newPackageString + pName);
