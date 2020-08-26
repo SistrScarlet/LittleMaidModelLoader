@@ -1,12 +1,9 @@
 package net.sistr.lmml.util.loader;
 
-import net.minecraft.client.resources.ClientResourcePackInfo;
 import net.minecraft.resources.*;
 import net.minecraft.resources.data.PackMetadataSection;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 //PackFinderはリソースパックを探すクラス
@@ -19,12 +16,12 @@ public class LMMLPackFinder implements IPackFinder {
     public LMMLPackFinder() {}
 
     @Override
-    public <T extends ResourcePackInfo> void func_230230_a_(Consumer<T> nameToPackMap, ResourcePackInfo.IFactory<T> packInfoFactory) {
+    public void func_230230_a_(Consumer<ResourcePackInfo> nameToPackMap, ResourcePackInfo.IFactory packInfoFactory) {
         PackMetadataSection packMetadataSection = new PackMetadataSection(new StringTextComponent("Little Maid Model Loader"), 5);
-        ClientResourcePackInfo resourcePackInfo = new ClientResourcePackInfo("lmml", true, () -> ResourceWrapper.INSTANCE,
+        ResourcePackInfo resourcePackInfo = new ResourcePackInfo("lmml", true, () -> ResourceWrapper.INSTANCE,
                 new StringTextComponent(ResourceWrapper.INSTANCE.getName()), packMetadataSection.getDescription(),
                 PackCompatibility.getCompatibility(packMetadataSection.getPackFormat()), ResourcePackInfo.Priority.TOP,
-                true, IPackNameDecorator.field_232626_b_, null, false);
-        nameToPackMap.accept((T) resourcePackInfo);
+                true, IPackNameDecorator.field_232625_a_, false);
+        nameToPackMap.accept(resourcePackInfo);
     }
 }

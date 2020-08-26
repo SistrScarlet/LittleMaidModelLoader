@@ -1,6 +1,5 @@
 package net.blacklab.lmr.entity.maidmodel;
 
-import com.sun.javafx.geom.Vec3d;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -204,8 +203,8 @@ public class EntityCaps implements IModelCaps {
                 return owner.getEntityWorld().getWorldInfo().getGameTime();
             case caps_WorldTime:
                 return owner.getEntityWorld().getWorldInfo().getDayTime();
-            case caps_MoonPhase:
-                return owner.getEntityWorld().getMoonPhase();
+            case caps_MoonPhase://todo MoonPhase合ってる？
+                return owner.getEntityWorld().func_234938_ad_();
         }
 
         return null;
