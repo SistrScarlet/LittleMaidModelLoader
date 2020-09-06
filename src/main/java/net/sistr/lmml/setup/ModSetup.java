@@ -6,7 +6,6 @@ import net.minecraft.item.Items;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.sistr.lmml.ForgeEventHandlers;
 import net.sistr.lmml.LittleMaidModelLoader;
 import net.sistr.lmml.network.Networking;
 import net.sistr.lmml.util.loader.LMFileLoader;
@@ -34,8 +33,6 @@ public class ModSetup {
 
         //サウンドパックセットアップ
         //SoundManager.instance.createSounds();
-
-        MinecraftForge.EVENT_BUS.register(ForgeEventHandlers.class);
 
     }
 

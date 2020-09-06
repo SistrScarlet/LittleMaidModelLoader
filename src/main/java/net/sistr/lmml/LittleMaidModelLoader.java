@@ -22,7 +22,8 @@ public class LittleMaidModelLoader {
 
     public LittleMaidModelLoader() {
 
-        if (FMLEnvironment.dist.isClient()) {
+        //後半のnullチェックはrunDataでのクラッシュ避け
+        if (FMLEnvironment.dist.isClient() && Minecraft.getInstance() != null) {
             //リソースをマイクラに読み込ませるための―詳しくはLMMLPackFinderにて
             Minecraft.getInstance().getResourcePackList().addPackFinder(new LMMLPackFinder());
         }

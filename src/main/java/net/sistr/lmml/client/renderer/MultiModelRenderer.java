@@ -64,6 +64,9 @@ public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends
     public void setModelValues(T entity, double x, double y, double z,
                                float yaw, float partialTicks, IModelCaps caps) {
         ModelMultiBase[] model  = entity.getMultiModels();
+        if (model == null) {
+            return;
+        }
         modelMain.model = model[0];
         modelFATT.modelInner = model[1];
         modelFATT.modelOuter = model[2];
@@ -120,6 +123,9 @@ public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends
 
     @Override
     public ResourceLocation getEntityTexture(T entity) {
+        if (entity.getTextures(0) == null) {
+            return new ResourceLocation("");
+        }
         ResourceLocation location = entity.getTextures(0)[0];
         return location != null ? location : new ResourceLocation("");
     }

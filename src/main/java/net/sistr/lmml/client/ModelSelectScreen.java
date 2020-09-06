@@ -499,7 +499,7 @@ public class ModelSelectScreen extends Screen {
 
         public ModelSelectorDummyEntity(EntityType<ModelSelectorDummyEntity> type, World worldIn) {
             super(type, worldIn);
-            this.data = null;
+            this.data = new SequentiallyMultiModelImpl();
         }
 
         public ModelSelectorDummyEntity(World worldIn) {

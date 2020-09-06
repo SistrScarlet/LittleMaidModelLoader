@@ -25,6 +25,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -165,6 +167,7 @@ public class MultiModelLoadEntity extends CreatureEntity implements IHasMultiMod
 
     //GUI開くやつ
     //未実装
+    @OnlyIn(Dist.CLIENT)
     public void openScreen(PlayerEntity player) {
         Minecraft.getInstance().displayGuiScreen(new ModelSelectScreen(new StringTextComponent("test"), this, this, ~0));
     }
