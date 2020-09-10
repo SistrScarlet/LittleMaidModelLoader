@@ -13,7 +13,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class MMArmorLayer<T extends LivingEntity & IHasMultiModel> extends LayerRenderer<T, ModelBaseSolo<T>> {
 
     private final MultiModelRenderer<T> renderer;

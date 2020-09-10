@@ -13,7 +13,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class MMHeldItemLayer<T extends LivingEntity & IHasMultiModel> extends LayerRenderer<T, ModelBaseSolo<T>> {
     private final MultiModelRenderer<T> renderer;
 

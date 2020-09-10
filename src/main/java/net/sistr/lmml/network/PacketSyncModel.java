@@ -2,11 +2,14 @@ package net.sistr.lmml.network;
 
 import net.blacklab.lmr.entity.maidmodel.IHasMultiModel;
 import net.blacklab.lmr.entity.maidmodel.TextureBox;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.sistr.lmml.LittleMaidModelLoader;
 import net.sistr.lmml.util.manager.ModelManager;
 
 import javax.annotation.Nullable;
@@ -56,12 +59,14 @@ public class PacketSyncModel {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            PlayerEntity player = ctx.get().getSender();
+            PlayerEntity player;
+            if (FMLEnvironment.dist.isDedicatedServer()) {
+                player = ctx.get().getSender();
+            } else {
+                player = getClientPlayer();
+            }
             if (player == null) {
-                player = LittleMaidModelLoader.proxy.getClientPlayer();
-                if (player == null) {
-                    return;
-                }
+                return;
             }
             Entity entity = player.world.getEntityByID(entityId);
             if (entity instanceof IHasMultiModel) {
@@ -83,5 +88,11 @@ public class PacketSyncModel {
             }
         });
         ctx.get().setPacketHandled(true);
+    }
+
+    //一応
+    @OnlyIn(Dist.CLIENT)
+    public static PlayerEntity getClientPlayer() {
+        return Minecraft.getInstance().player;
     }
 }

@@ -18,8 +18,6 @@ public class LittleMaidModelLoader {
 
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public static IProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
-
     public LittleMaidModelLoader() {
 
         if (FMLEnvironment.dist.isClient()) {

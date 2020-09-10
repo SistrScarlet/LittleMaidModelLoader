@@ -10,6 +10,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.sistr.lmml.network.Networking;
 import net.sistr.lmml.network.PacketSyncModel;
@@ -18,7 +21,8 @@ import net.sistr.lmml.util.manager.ModelManager;
 import javax.annotation.Nullable;
 
 //モデル/テクスチャの管理クラス
-//ModelConfigCompoundから一部流用
+//ModelConfigCompoundを流用
+//TextureBoxはサーバー側で保持するが、それ以外は保持しない
 public class DefaultMultiModel implements IHasMultiModel {
 
     private final TextureBox defaultMainBoxes;
@@ -59,40 +63,50 @@ public class DefaultMultiModel implements IHasMultiModel {
         if (textureBox[0] == null) {
             textureBox[0] = defaultMainBoxes;
         }
-        TextureBox mainBox = textureBox[0];
-        int mainColor = (color & 0x00ff) + (contract ? 0 : ModelManager.tx_wild);
-        int growColor = (color & 0x00ff) + (contract ? ModelManager.tx_eyecontract : ModelManager.tx_eyewild);
-        if (!mainBox.hasColor(mainColor)) {//クライアントに存在しない色が指定された場合、読み込める別の色を読み込む。
-            mainColor = contract ? mainBox.getRandomContractColor(owner.world.rand) : mainBox.getRandomWildColor(owner.world.rand);
-            setColor((byte) mainColor);
-        }
-        if (mainBox.hasColor(mainColor)) {
-            textures[0][0] = mainBox.getTextureName(mainColor);
-            textures[0][1] = mainBox.getTextureName(growColor);
-            models[0] = mainBox.models[0];
+        if (FMLEnvironment.dist.isClient()) {
+            TextureBox mainBox = textureBox[0];
+            int mainColor = (color & 0x00ff) + (contract ? 0 : ModelManager.tx_wild);
+            int growColor = (color & 0x00ff) + (contract ? ModelManager.tx_eyecontract : ModelManager.tx_eyewild);
+            if (!mainBox.hasColor(mainColor)) {//クライアントに存在しない色が指定された場合、読み込める別の色を読み込む。
+                mainColor = contract ? mainBox.getRandomContractColor(owner.world.rand) : mainBox.getRandomWildColor(owner.world.rand);
+                setColor((byte) mainColor);
+            }
+            if (mainBox.hasColor(mainColor)) {
+                textures[0][0] = mainBox.getTextureName(mainColor);
+                textures[0][1] = mainBox.getTextureName(growColor);
+                models[0] = mainBox.models[0];
+            }
         }
         //防具テクスチャ指定
         if (textureBox[1] == null) {
             textureBox[1] = defaultArmorBoxes;
         }
-        TextureBox armorBox = textureBox[1];
-        for (int i = 0; i < 4; i++) {//頭～足で4回
-            String material = "default";
-            int damage = 0;
-            ItemStack armorStack = owner.getItemStackFromSlot(
-                    EquipmentSlotType.fromSlotTypeAndIndex(EquipmentSlotType.Group.ARMOR, 3 - i));
-            Item armor = armorStack.getItem();
-            if (armor instanceof ArmorItem) {
-                material = ((ArmorItem) armor).getArmorMaterial().getName();
-                damage = armorStack.getDamage();
+        if (FMLEnvironment.dist.isClient()) {
+            TextureBox armorBox = textureBox[1];
+            for (int i = 0; i < 4; i++) {//頭～足で4回
+                String material = "default";
+                int damage = 0;
+                ItemStack armorStack = owner.getItemStackFromSlot(
+                        EquipmentSlotType.fromSlotTypeAndIndex(EquipmentSlotType.Group.ARMOR, 3 - i));
+                Item armor = armorStack.getItem();
+                if (armor instanceof ArmorItem) {
+                    //クライアント専用メソッド、注意
+                    material = getArmorMaterialName((ArmorItem) armor);
+                    damage = armorStack.getDamage();
+                }
+                textures[1][i] = armorBox.getArmorTextureName(ModelManager.tx_armor1, material, damage);
+                textures[2][i] = armorBox.getArmorTextureName(ModelManager.tx_armor2, material, damage);
+                textures[3][i] = armorBox.getArmorTextureName(ModelManager.tx_armor1light, material, damage);
+                textures[4][i] = armorBox.getArmorTextureName(ModelManager.tx_armor2light, material, damage);
             }
-            textures[1][i] = armorBox.getArmorTextureName(ModelManager.tx_armor1, material, damage);
-            textures[2][i] = armorBox.getArmorTextureName(ModelManager.tx_armor2, material, damage);
-            textures[3][i] = armorBox.getArmorTextureName(ModelManager.tx_armor1light, material, damage);
-            textures[4][i] = armorBox.getArmorTextureName(ModelManager.tx_armor2light, material, damage);
+            models[1] = armorBox.models[1];
+            models[2] = armorBox.models[2];
         }
-        models[1] = armorBox.models[1];
-        models[2] = armorBox.models[2];
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static String getArmorMaterialName(ArmorItem armor) {
+        return armor.getArmorMaterial().getName();
     }
 
     //鯖蔵同期
