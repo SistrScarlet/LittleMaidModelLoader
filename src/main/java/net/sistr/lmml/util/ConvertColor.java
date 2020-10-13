@@ -3,26 +3,28 @@ package net.sistr.lmml.util;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.Tags;
 
+import java.util.Optional;
+
 public class ConvertColor {
 
-    public static byte convertDyeColor(Item item) {
-        if (Tags.Items.DYES_WHITE.func_230235_a_(item)) return (byte) 0;
-        if (Tags.Items.DYES_ORANGE.func_230235_a_(item)) return (byte) 1;
-        if (Tags.Items.DYES_MAGENTA.func_230235_a_(item)) return (byte) 2;
-        if (Tags.Items.DYES_LIGHT_BLUE.func_230235_a_(item)) return (byte) 3;
-        if (Tags.Items.DYES_YELLOW.func_230235_a_(item)) return (byte) 4;
-        if (Tags.Items.DYES_LIME.func_230235_a_(item)) return (byte) 5;
-        if (Tags.Items.DYES_PINK.func_230235_a_(item)) return (byte) 6;
-        if (Tags.Items.DYES_GRAY.func_230235_a_(item)) return (byte) 7;
-        if (Tags.Items.DYES_LIGHT_GRAY.func_230235_a_(item)) return (byte) 8;
-        if (Tags.Items.DYES_CYAN.func_230235_a_(item)) return (byte) 9;
-        if (Tags.Items.DYES_PURPLE.func_230235_a_(item)) return (byte) 10;
-        if (Tags.Items.DYES_BLUE.func_230235_a_(item)) return (byte) 11;
-        if (Tags.Items.DYES_BROWN.func_230235_a_(item)) return (byte) 12;
-        if (Tags.Items.DYES_GREEN.func_230235_a_(item)) return (byte) 13;
-        if (Tags.Items.DYES_RED.func_230235_a_(item)) return (byte) 14;
-        if (Tags.Items.DYES_BLACK.func_230235_a_(item)) return (byte) 15;
-        return -1;
+    public static Optional<TextureColor> convertDyeColor(Item item) {
+        if (Tags.Items.DYES_WHITE.contains(item)) return Optional.of(TextureColor.WHITE);
+        if (Tags.Items.DYES_ORANGE.contains(item)) return Optional.of(TextureColor.ORANGE);
+        if (Tags.Items.DYES_MAGENTA.contains(item)) return Optional.of(TextureColor.MAGENTA);
+        if (Tags.Items.DYES_LIGHT_BLUE.contains(item)) return Optional.of(TextureColor.LIGHT_BLUE);
+        if (Tags.Items.DYES_YELLOW.contains(item)) return Optional.of(TextureColor.YELLOW);
+        if (Tags.Items.DYES_LIME.contains(item)) return Optional.of(TextureColor.LIME);
+        if (Tags.Items.DYES_PINK.contains(item)) return Optional.of(TextureColor.PINK);
+        if (Tags.Items.DYES_GRAY.contains(item)) return Optional.of(TextureColor.GRAY);
+        if (Tags.Items.DYES_LIGHT_GRAY.contains(item)) return Optional.of(TextureColor.LIGHT_GRAY);
+        if (Tags.Items.DYES_CYAN.contains(item)) return Optional.of(TextureColor.CYAN);
+        if (Tags.Items.DYES_PURPLE.contains(item)) return Optional.of(TextureColor.PURPLE);
+        if (Tags.Items.DYES_BLUE.contains(item)) return Optional.of(TextureColor.BLUE);
+        if (Tags.Items.DYES_BROWN.contains(item)) return Optional.of(TextureColor.BROWN);
+        if (Tags.Items.DYES_GREEN.contains(item)) return Optional.of(TextureColor.GREEN);
+        if (Tags.Items.DYES_RED.contains(item)) return Optional.of(TextureColor.RED);
+        if (Tags.Items.DYES_BLACK.contains(item)) return Optional.of(TextureColor.BLACK);
+        return Optional.empty();
     }
 
 }

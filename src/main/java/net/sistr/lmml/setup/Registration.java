@@ -9,7 +9,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.sistr.lmml.client.ModelSelectScreen;
-import net.sistr.lmml.entity.MultiModelLoadEntity;
+import net.sistr.lmml.entity.MultiModelEntity;
 
 import static net.sistr.lmml.LittleMaidModelLoader.MODID;
 
@@ -25,15 +25,17 @@ public class Registration {
         CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
-    public static final RegistryObject<EntityType<MultiModelLoadEntity>> MULTI_MODEL_LOAD_ENTITY = ENTITIES.register("multi_model_load_entity", () ->
-            EntityType.Builder.create((EntityType.IFactory<MultiModelLoadEntity>) MultiModelLoadEntity::new, EntityClassification.MISC)
+    public static final RegistryObject<EntityType<MultiModelEntity>> MULTI_MODEL_ENTITY = ENTITIES.register("multi_model_entity", () ->
+            EntityType.Builder.create(MultiModelEntity::new, EntityClassification.MISC)
             .size(0.8F, 1.2F)
             .setShouldReceiveVelocityUpdates(false)
-            .build("multi_model_load_entity"));
-    public static final RegistryObject<EntityType<ModelSelectScreen.ModelSelectorDummyEntity>> MODEL_SELECTOR_DUMMY_ENTITY = ENTITIES.register("model_selector_dummy_entity", () ->
-            EntityType.Builder.create((EntityType.IFactory<ModelSelectScreen.ModelSelectorDummyEntity>) ModelSelectScreen.ModelSelectorDummyEntity::new, EntityClassification.MISC)
+            .build("multi_model_entity"));
+    public static final RegistryObject<EntityType<ModelSelectScreen.DummyModelEntity>> DUMMY_MODEL_ENTITY =
+            ENTITIES.register("dummy_model_entity", () ->
+            EntityType.Builder.create((EntityType.IFactory<ModelSelectScreen.DummyModelEntity>)
+                    ModelSelectScreen.DummyModelEntity::new, EntityClassification.MISC)
                     .size(0.8F, 1.2F)
                     .setShouldReceiveVelocityUpdates(false)
-                    .build("model_selector_dummy_entity"));
+                    .build("dummy_model_entity"));
 
 }

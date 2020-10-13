@@ -17,9 +17,9 @@ public class Networking {
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(LittleMaidModelLoader.MODID, "littlemaidmodelloader"), () -> "1.0", s -> true, s -> true);
 
         INSTANCE.registerMessage(nextID(),
-                PacketSyncModel.class,
-                PacketSyncModel::toBytes,
-                PacketSyncModel::new,
-                PacketSyncModel::handle);
+                PacketSyncMultiModel.class,
+                PacketSyncMultiModel::toBytes,
+                PacketSyncMultiModel::new,
+                PacketSyncMultiModel::handle);
     }
 }
