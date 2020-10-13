@@ -4,7 +4,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.sistr.lmml.LittleMaidModelLoader;
 import net.sistr.lmml.client.renderer.MultiModelRenderer;
 
@@ -12,8 +11,8 @@ import net.sistr.lmml.client.renderer.MultiModelRenderer;
 public class ClientSetup {
 
     public static void init(final FMLClientSetupEvent event) {
-        RenderingRegistry.registerEntityRenderingHandler(Registration.MULTI_MODEL_LOAD_ENTITY.get(), MultiModelRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(Registration.MODEL_SELECTOR_DUMMY_ENTITY.get(), MultiModelRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(Registration.MULTI_MODEL_ENTITY.get(), MultiModelRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(Registration.DUMMY_MODEL_ENTITY.get(), MultiModelRenderer::new);
     }
 
 }
