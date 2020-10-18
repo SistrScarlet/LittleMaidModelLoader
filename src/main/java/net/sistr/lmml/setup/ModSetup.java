@@ -49,14 +49,14 @@ public class ModSetup {
         //テクスチャを読み込む
         resourceLocations.forEach(resourcePath -> {
             String path = resourcePath.getPath();
-            String textureName = ResourceHelper.getTextureName(path);
-            assert textureName != null;//canProcessでチェックしてるのでnullはありえない
-            String modelName = ResourceHelper.getModelName(textureName);
-            int index = ResourceHelper.getIndex(path);
-            if (index != -1) {
-                LittleMaidModelLoader.getInstance().getTextureManager()
-                        .addTexture(ResourceHelper.getFileName(path), textureName, modelName, index, resourcePath);
-            }
+            ResourceHelper.getTextureName(path).ifPresent(textureName -> {
+                String modelName = ResourceHelper.getModelName(textureName);
+                int index = ResourceHelper.getIndex(path);
+                if (index != -1) {
+                    LittleMaidModelLoader.getInstance().getTextureManager()
+                            .addTexture(ResourceHelper.getFileName(path), textureName, modelName, index, resourcePath);
+                }
+            });
         });
     }
 

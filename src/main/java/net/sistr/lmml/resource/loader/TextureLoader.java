@@ -28,15 +28,14 @@ public class TextureLoader implements ILoader {
 
     @Override
     public boolean canLoad(String path, Path homePath, InputStream inputStream, boolean isArchive) {
-        return path.endsWith(".png") && ResourceHelper.getTextureName(path) != null
+        return path.endsWith(".png") && ResourceHelper.getTextureName(path).isPresent()
                 && ResourceHelper.getIndex(path) != -1;
     }
 
     @Override
     public void load(String path, Path homePath, InputStream inputStream, boolean isArchive) {
         ResourceLocation texturePath = getResourceLocation(path);
-        String textureName = ResourceHelper.getTextureName(path);
-        assert textureName != null;//canProcessでチェックしてるのでnullはありえない
+        String textureName = ResourceHelper.getTextureName(path).get();
         String modelName = ResourceHelper.getModelName(textureName);
         textureManager.addTexture(ResourceHelper.getFileName(path), textureName, modelName,
                 ResourceHelper.getIndex(path), texturePath);

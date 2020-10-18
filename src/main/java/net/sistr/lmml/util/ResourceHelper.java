@@ -1,6 +1,7 @@
 package net.sistr.lmml.util;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class ResourceHelper {
 
@@ -29,6 +30,7 @@ public class ResourceHelper {
      */
     public static String getFileName(String path) {
         int lastSplitter = path.lastIndexOf('/');
+        //ファイル階層なし
         if (lastSplitter == -1) {
             return path;
         }
@@ -37,11 +39,15 @@ public class ResourceHelper {
     }
 
     /**
-     * assets/minecraft/textures/entity/littlemaid/[texture]_[model]/xxxx_[index].png
+     * [texture]_[model]
      * のうち、[model]を抜き取る
+     * ただし、
+     * [texture]
+     * の場合はdefaultを返す
      */
     public static String getModelName(String textureName) {
         int lastSplitter = textureName.lastIndexOf('_');
+        //モデル名なし
         if (lastSplitter == -1) {
             return "default";
         }
@@ -53,13 +59,16 @@ public class ResourceHelper {
     /**
      * assets/minecraft/textures/entity/littlemaid/[texture]_[model]/xxxx_[index].png
      * のうち、[texture]_[model]を抜き取る
+     * ただし、
+     * assets/minecraft/textures/entity/littlemaid/[texture]/xxxx_[index].png
+     * の場合は[texture]のみを抜き取る
      */
-    @Nullable
-    public static String getTextureName(String path) {
+    public static Optional<String> getTextureName(String path) {
         String name = path;
         int lastSplitter = name.lastIndexOf('/');
+        //フォルダ階層のないファイルは読み込めない
         if (lastSplitter == -1) {
-            return null;
+            return Optional.empty();
         }
         //[texture]_[model]の後ろを削る
         name = name.substring(0, lastSplitter);
@@ -68,7 +77,7 @@ public class ResourceHelper {
             //[texture]_[model]の前を削る
             name = name.substring(lastSplitter + 1);
         }
-        return name;
+        return Optional.of(name);
     }
 
     /**
