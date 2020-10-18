@@ -20,6 +20,14 @@ public class FileLoader {
     }
 
     public void addLoadFolderPath(Path path) {
+        if (Files.notExists(path)) {
+            try {
+                Files.createDirectory(path);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
         folderPaths.add(path);
     }
 

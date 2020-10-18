@@ -28,7 +28,7 @@ import java.util.zip.ZipFile;
 public class ResourceWrapper implements IResourcePack {
     public static final ResourceWrapper INSTANCE = new ResourceWrapper();
     public static final PackMetadataSection PACK_INFO =
-            new PackMetadataSection(new StringTextComponent("LittleMaidModelLoader!!!"), 5);
+            new PackMetadataSection(new StringTextComponent("LittleMaidModelLoader!!!"), 6);
     protected static final HashMap<ResourceLocation, Resource> PATHS = Maps.newHashMap();
 
     //いつ呼ばれるのか不明

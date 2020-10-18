@@ -19,7 +19,7 @@ public class MultiModelLoader implements ILoader {
 
     @Override
     public boolean canLoad(String path, Path homePath, InputStream inputStream, boolean isArchive) {
-        return path.endsWith(".class");
+        return path.endsWith(".class") && (path.contains("ModelMulti_") || path.contains("ModelLittleMaid_"));
     }
 
     @Override
