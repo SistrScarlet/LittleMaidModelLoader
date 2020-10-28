@@ -14,12 +14,18 @@ public class Networking {
     }
 
     public static void registerMessages() {
-        INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(LittleMaidModelLoader.MODID, "littlemaidmodelloader"), () -> "1.0", s -> true, s -> true);
+        INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(LittleMaidModelLoader.MODID,
+                "littlemaidmodelloader"), () -> "1.0", s -> true, s -> true);
 
         INSTANCE.registerMessage(nextID(),
-                PacketSyncMultiModel.class,
-                PacketSyncMultiModel::toBytes,
-                PacketSyncMultiModel::new,
-                PacketSyncMultiModel::handle);
+                SyncMultiModelPacket.class,
+                SyncMultiModelPacket::toBytes,
+                SyncMultiModelPacket::new,
+                SyncMultiModelPacket::handle);
+        INSTANCE.registerMessage(nextID(),
+                LMSoundPacket.class,
+                LMSoundPacket::toBytes,
+                LMSoundPacket::new,
+                LMSoundPacket::handle);
     }
 }

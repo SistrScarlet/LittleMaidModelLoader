@@ -1,23 +1,21 @@
 package net.sistr.lmml.setup;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.sistr.lmml.LittleMaidModelLoader;
-import net.sistr.lmml.entity.IHasMultiModel;
+import net.sistr.lmml.SideChecker;
+import net.sistr.lmml.client.resource.loader.LMSoundLoader;
+import net.sistr.lmml.client.resource.loader.LMTextureLoader;
+import net.sistr.lmml.client.resource.manager.LMSoundManager;
+import net.sistr.lmml.entity.compound.IHasMultiModel;
 import net.sistr.lmml.maidmodel.ModelLittleMaid_Archetype;
 import net.sistr.lmml.maidmodel.ModelLittleMaid_Aug;
 import net.sistr.lmml.maidmodel.ModelLittleMaid_Orign;
 import net.sistr.lmml.maidmodel.ModelLittleMaid_SR2;
 import net.sistr.lmml.network.Networking;
-import net.sistr.lmml.util.ResourceHelper;
-import net.sistr.lmml.resource.manager.ModelManager;
-
-import java.util.Collection;
+import net.sistr.lmml.resource.loader.LMFileLoader;
+import net.sistr.lmml.resource.manager.LMModelManager;
+import net.sistr.lmml.resource.manager.LMTextureManager;
 
 @Mod.EventBusSubscriber(modid = LittleMaidModelLoader.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModSetup {
@@ -25,12 +23,20 @@ public class ModSetup {
     public static void init(final FMLCommonSetupEvent event) {
         Networking.registerMessages();
 
-        if (FMLEnvironment.dist.isClient()) {
-            loadTexture();
+        //Common->Clientの順のためこちらで処理
+        if (SideChecker.isClient()) {
+            LMFileLoader fileLoader = LMFileLoader.INSTANCE;
+            LMTextureManager textureManager = LMTextureManager.INSTANCE;
+            LMSoundManager soundManager = LMSoundManager.INSTANCE;
+            LMTextureLoader textureProcessor = new LMTextureLoader(textureManager);
+            textureProcessor.addPathConverter("assets/", "");
+            textureProcessor.addPathConverter("mob/", "minecraft/textures/entity/");
+            fileLoader.addLoader(textureProcessor);
+            fileLoader.addLoader(new LMSoundLoader(soundManager));
         }
 
         //モデルを読み込む
-        ModelManager manager = LittleMaidModelLoader.getInstance().getModelManager();
+        LMModelManager manager = LMModelManager.INSTANCE;
         manager.addModel("Default", ModelLittleMaid_Orign.class);
         manager.addModel("SR2", ModelLittleMaid_SR2.class);
         manager.addModel("Aug", ModelLittleMaid_Aug.class);
@@ -38,26 +44,8 @@ public class ModSetup {
         manager.setDefaultModel(manager.getModel("Default", IHasMultiModel.Layer.SKIN)
                 .orElseThrow(RuntimeException::new));
 
-        LittleMaidModelLoader.getInstance().getFileLoader().load();
-    }
+        LMFileLoader.INSTANCE.load();
 
-    @OnlyIn(Dist.CLIENT)
-    public static void loadTexture() {
-        //このパスにあるテクスチャすべてを受け取る(リソパ及びModリソースからも抜ける)
-        Collection<ResourceLocation> resourceLocations = Minecraft.getInstance().getResourceManager()
-                .getAllResourceLocations("textures/entity/littlemaid", t -> true);
-        //テクスチャを読み込む
-        resourceLocations.forEach(resourcePath -> {
-            String path = resourcePath.getPath();
-            ResourceHelper.getTextureName(path).ifPresent(textureName -> {
-                String modelName = ResourceHelper.getModelName(textureName);
-                int index = ResourceHelper.getIndex(path);
-                if (index != -1) {
-                    LittleMaidModelLoader.getInstance().getTextureManager()
-                            .addTexture(ResourceHelper.getFileName(path), textureName, modelName, index, resourcePath);
-                }
-            });
-        });
     }
 
 }

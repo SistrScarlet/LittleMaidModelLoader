@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.entity.LivingEntity;
-import net.sistr.lmml.entity.IHasMultiModel;
+import net.sistr.lmml.entity.compound.IHasMultiModel;
 import net.sistr.lmml.maidmodel.ModelRenderer;
 
 public class MultiModel<T extends LivingEntity & IHasMultiModel> extends EntityModel<T> {

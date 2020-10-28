@@ -24,15 +24,19 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.sistr.lmml.LittleMaidModelLoader;
-import net.sistr.lmml.entity.IHasMultiModel;
+import net.sistr.lmml.entity.compound.IHasMultiModel;
 import net.sistr.lmml.maidmodel.EntityCaps;
 import net.sistr.lmml.maidmodel.IModelCaps;
 import net.sistr.lmml.maidmodel.ModelMultiBase;
-import net.sistr.lmml.network.Networking;
-import net.sistr.lmml.network.PacketSyncMultiModel;
-import net.sistr.lmml.resource.manager.ModelManager;
+import net.sistr.lmml.network.SyncMultiModelPacket;
+import net.sistr.lmml.resource.holder.TextureHolder;
+import net.sistr.lmml.resource.manager.LMModelManager;
+import net.sistr.lmml.resource.manager.LMTextureManager;
+import net.sistr.lmml.resource.util.ArmorPart;
+import net.sistr.lmml.resource.util.ArmorSets;
+import net.sistr.lmml.resource.util.TextureColors;
+import net.sistr.lmml.resource.util.TexturePair;
 import net.sistr.lmml.setup.Registration;
-import net.sistr.lmml.util.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,8 +53,8 @@ public class ModelSelectScreen extends Screen {
     public static final ResourceLocation EMPTY_TEXTURE =
             new ResourceLocation(LittleMaidModelLoader.MODID, "textures/empty.png");
     public static final TexturePair EMPTY_TEXTURE_PAIR = new TexturePair(EMPTY_TEXTURE, null);
-    public static final ArmorPartModelData EMPTY_ARMOR_DATA =
-            new ArmorPartModelData(null, null, null, null,
+    public static final ArmorPart EMPTY_ARMOR_DATA =
+            new ArmorPart(null, null, null, null,
                     null, null);
     public static final ResourceLocation MODEL_SELECT_GUI_TEXTURE =
             new ResourceLocation(LittleMaidModelLoader.MODID, "textures/gui/model_select.png");
@@ -67,8 +71,7 @@ public class ModelSelectScreen extends Screen {
         super(titleIn);
         this.owner = owner;
         DummyModelEntity dummy = new DummyModelEntity(world);
-        Collection<TextureHolder> textureHolders =
-                LittleMaidModelLoader.getInstance().getTextureManager().getAllTextures();
+        Collection<TextureHolder> textureHolders = LMTextureManager.INSTANCE.getAllTextures();
         Map<String, TextureHolder> map = new HashMap<>();
         textureHolders.forEach(textureHolder -> map.put(textureHolder.getTextureName().toLowerCase(), textureHolder));
         ImmutableList<TextureHolder> textures =
@@ -146,13 +149,11 @@ public class ModelSelectScreen extends Screen {
         modelGUI.onClose();
         armorGUI.onClose();
         if (owner instanceof Entity) {
-            ArmorsHolder<String> armorNames = new ArmorsHolder<>();
+            ArmorSets<String> armorNames = new ArmorSets<>();
             for (IHasMultiModel.Part part : IHasMultiModel.Part.values()) {
                 armorNames.setArmor(owner.getTextureHolder(IHasMultiModel.Layer.INNER, part).getTextureName(), part);
             }
-            Networking.INSTANCE.sendToServer(new PacketSyncMultiModel(((Entity) owner).getEntityId(),
-                    owner.getTextureHolder(IHasMultiModel.Layer.SKIN, IHasMultiModel.Part.HEAD).getTextureName(),
-                    armorNames, owner.getColor(), owner.isContract()));
+            SyncMultiModelPacket.sendC2SPacket((Entity) owner, owner);
         }
     }
 
@@ -171,7 +172,7 @@ public class ModelSelectScreen extends Screen {
         private final boolean isContract = true;
         private int scrollLine = 0;
         private int selectLine = -1;
-        private TextureColor selectColor = null;
+        private TextureColors selectColor = null;
         private final int maxAnimation = 10;
         private int animation;
         private int prevAnimation;
@@ -184,7 +185,7 @@ public class ModelSelectScreen extends Screen {
             this.screenInfo = screenInfo;
             this.dummy = dummy;
             this.owner = owner;
-            ModelManager modelManager = LittleMaidModelLoader.getInstance().getModelManager();
+            LMModelManager modelManager = LMModelManager.INSTANCE;
             textures.stream().filter(textureHolder ->
                     textureHolder.hasSkinTexture(isContract) &&
                             modelManager.getModel(textureHolder.getModelName(), IHasMultiModel.Layer.SKIN).isPresent())
@@ -229,7 +230,7 @@ public class ModelSelectScreen extends Screen {
                 int baseX = (screenInfo.getWidth() - width) / 2;
                 int baseY = (screenInfo.getHeight() - height) / 2;
                 int appendY = (height / 3) * (i + 1);
-                ModelManager modelManager = LittleMaidModelLoader.getInstance().getModelManager();
+                LMModelManager modelManager = LMModelManager.INSTANCE;
                 ModelMultiBase model = modelManager.getModel(holder.getModelName(), IHasMultiModel.Layer.SKIN)
                         .orElseThrow(IllegalStateException::new);
                 renderAllColorModel(baseX, baseY + appendY, 15,
@@ -240,7 +241,7 @@ public class ModelSelectScreen extends Screen {
                     && mouseX < (screenInfo.getWidth() + width) / 2F + 45
                     && (screenInfo.getHeight() + height) / 2F <= mouseY;
             if (selectLine != -1) {
-                ModelManager modelManager = LittleMaidModelLoader.getInstance().getModelManager();
+                LMModelManager modelManager = LMModelManager.INSTANCE;
                 ModelMultiBase model =
                         modelManager.getModel(loadedTexture.get(selectLine).getModelName(), IHasMultiModel.Layer.SKIN)
                                 .orElseThrow(() -> new IllegalStateException("モデルが存在しません。"));
@@ -280,7 +281,7 @@ public class ModelSelectScreen extends Screen {
                 return false;
             }
             TextureHolder textureHolder = loadedTexture.get(scrollLine + selectLine);
-            TextureColor selectColor = TextureColor.getColor((int) ((x - minX) / (width / 16)));
+            TextureColors selectColor = TextureColors.getColor((int) ((x - minX) / (width / 16)));
             if (!textureHolder.getTexture(selectColor, isContract, false).isPresent()
                     && !textureHolder.getTexture(selectColor, isContract, true).isPresent()) {
                 return false;
@@ -327,7 +328,7 @@ public class ModelSelectScreen extends Screen {
 
         public void renderAllColorModel(int posX, int posY, int scale, float mouseX, float mouseY,
                                         ModelMultiBase model, TextureHolder holder) {
-            for (TextureColor color : TextureColor.values()) {
+            for (TextureColors color : TextureColors.values()) {
                 getTexturePair(holder, color, isContract).ifPresent(texturePair ->
                         renderModel(posX + (color.getIndex() + 1) * scale - scale / 2, posY, scale,
                                 mouseX, mouseY, model, texturePair));
@@ -337,7 +338,7 @@ public class ModelSelectScreen extends Screen {
                     posX, posY - 45, 0xFFFFFFFF);
         }
 
-        public Optional<TexturePair> getTexturePair(TextureHolder holder, TextureColor color, boolean isContract) {
+        public Optional<TexturePair> getTexturePair(TextureHolder holder, TextureColors color, boolean isContract) {
             Optional<ResourceLocation> optional = holder.getTexture(color, isContract, false);
             return optional.map(resourceLocation ->
                     new TexturePair(resourceLocation,
@@ -359,7 +360,7 @@ public class ModelSelectScreen extends Screen {
 
     //ModelGUIと似通った部分が多いが、微妙に違って実装に悩む…
     public static class ArmorGUI implements GUI {
-        private static final ArmorsHolder<ItemStack> ARMOR_ICONS = new ArmorsHolder<>();
+        private static final ArmorSets<ItemStack> ARMOR_ICONS = new ArmorSets<>();
         private final int width;
         private final int height;
         private final ScreenInfo screenInfo;
@@ -367,7 +368,7 @@ public class ModelSelectScreen extends Screen {
         private final IHasMultiModel owner;
         private final List<TextureHolder> loadedTexture = new ArrayList<>();
         private final ScrollBar scrollBar;
-        private final ArmorsHolder<Integer> armors = new ArmorsHolder<>();
+        private final ArmorSets<Integer> armors = new ArmorSets<>();
         private int scrollLine = 0;
         private int selectLine = -1;
         private final int maxAnimation = 10;
@@ -389,7 +390,7 @@ public class ModelSelectScreen extends Screen {
             this.screenInfo = screenInfo;
             this.dummy = dummy;
             this.owner = owner;
-            ModelManager modelManager = LittleMaidModelLoader.getInstance().getModelManager();
+            LMModelManager modelManager = LMModelManager.INSTANCE;
             textures.stream().filter(textureHolder ->
                     textureHolder.hasArmorTexture() &&
                             modelManager.getModel(textureHolder.getModelName(), IHasMultiModel.Layer.INNER).isPresent())
@@ -426,7 +427,7 @@ public class ModelSelectScreen extends Screen {
                 int baseX = (screenInfo.getWidth() - width) / 2;
                 int baseY = (screenInfo.getHeight() - height) / 2;
                 int appendY = (height / 3) * (i + 1);
-                ModelManager modelManager = LittleMaidModelLoader.getInstance().getModelManager();
+                LMModelManager modelManager = LMModelManager.INSTANCE;
                 ModelMultiBase model = modelManager.getModel(holder.getModelName(), IHasMultiModel.Layer.SKIN)
                         .orElseThrow(IllegalStateException::new);
                 renderAllArmorModel(baseX, baseY + appendY, 15,
@@ -437,7 +438,7 @@ public class ModelSelectScreen extends Screen {
                     && mouseX < (screenInfo.getWidth() + width) / 2F + 45
                     && (screenInfo.getHeight() + height) / 2F <= mouseY;
             if (selectLine != -1) {
-                ModelManager modelManager = LittleMaidModelLoader.getInstance().getModelManager();
+                LMModelManager modelManager = LMModelManager.INSTANCE;
                 ModelMultiBase model =
                         modelManager.getModel(loadedTexture.get(selectLine).getModelName(), IHasMultiModel.Layer.SKIN)
                                 .orElseThrow(() -> new IllegalStateException("モデルが存在しません。"));
@@ -463,7 +464,7 @@ public class ModelSelectScreen extends Screen {
                         .orElseThrow(() -> new IllegalStateException("モデルが存在しません"));
                 ModelMultiBase outerModel = modelManager.getModel(textureHolder.getModelName(), IHasMultiModel.Layer.OUTER)
                         .orElseThrow(() -> new IllegalStateException("モデルが存在しません"));
-                ArmorPartModelData armorData = new ArmorPartModelData(innerTex, innerLightTex, outerTex, outerLightTex,
+                ArmorPart armorData = new ArmorPart(innerTex, innerLightTex, outerTex, outerLightTex,
                         innerModel, outerModel);
                 renderArmorPart((screenInfo.getWidth() + width) / 2,
                         screenInfo.getHeight()
@@ -618,7 +619,7 @@ public class ModelSelectScreen extends Screen {
         public void renderAllArmorModel(int posX, int posY, int scale, float mouseX, float mouseY,
                                         ModelMultiBase model, TextureHolder holder) {
             int index = 0;
-            ModelManager modelManager = LittleMaidModelLoader.getInstance().getModelManager();
+            LMModelManager modelManager = LMModelManager.INSTANCE;
             ModelMultiBase innerModel = modelManager.getModel(holder.getModelName(), IHasMultiModel.Layer.INNER)
                     .orElseThrow(() -> new IllegalStateException("モデルが存在しません"));
             ModelMultiBase outerModel = modelManager.getModel(holder.getModelName(), IHasMultiModel.Layer.OUTER)
@@ -636,8 +637,8 @@ public class ModelSelectScreen extends Screen {
                         0, false).orElse(null);
                 ResourceLocation outerLightTex = holder.getArmorTexture(IHasMultiModel.Layer.OUTER, armorName,
                         0, true).orElse(null);
-                ArmorPartModelData armorData =
-                        new ArmorPartModelData(innerTex, innerLightTex, outerTex, outerLightTex,
+                ArmorPart armorData =
+                        new ArmorPart(innerTex, innerLightTex, outerTex, outerLightTex,
                                 innerModel, outerModel);
                 renderArmorPart(posX + index * scale - scale / 2, posY, scale, mouseX, mouseY,
                         model, armorData);
@@ -648,7 +649,7 @@ public class ModelSelectScreen extends Screen {
         }
 
         public void renderArmorPart(int posX, int posY, int scale, float mouseX, float mouseY,
-                                    ModelMultiBase model, ArmorPartModelData data) {
+                                    ModelMultiBase model, ArmorPart data) {
             dummy.setSkinModel(model);
             dummy.setSkinTexture(ModelSelectScreen.EMPTY_TEXTURE_PAIR);
             for (IHasMultiModel.Part part : IHasMultiModel.Part.values()) {
@@ -791,8 +792,8 @@ public class ModelSelectScreen extends Screen {
         private final EntityCaps caps = new EntityCaps(this);
         private ModelMultiBase skinModel;
         private TexturePair skinTexture;
-        private final ArmorsHolder<ArmorPartModelData> armorsData = new ArmorsHolder<>();
-        private final ArmorsHolder<Boolean> armorsVisible = new ArmorsHolder<>();
+        private final ArmorSets<ArmorPart> armorsData = new ArmorSets<>();
+        private final ArmorSets<Boolean> armorsVisible = new ArmorSets<>();
 
         public DummyModelEntity(EntityType<DummyModelEntity> type, World worldIn) {
             super(type, worldIn);
@@ -810,7 +811,7 @@ public class ModelSelectScreen extends Screen {
             this.skinTexture = skinTexture;
         }
 
-        public void setArmorData(ArmorPartModelData data,  Part part) {
+        public void setArmorData(ArmorPart data, Part part) {
             armorsData.setArmor(data, part);
         }
 
@@ -863,13 +864,13 @@ public class ModelSelectScreen extends Screen {
 
         @Deprecated
         @Override
-        public void setColor(TextureColor color) {
+        public void setColor(TextureColors color) {
 
         }
 
         @Deprecated
         @Override
-        public TextureColor getColor() {
+        public TextureColors getColor() {
             return null;
         }
 

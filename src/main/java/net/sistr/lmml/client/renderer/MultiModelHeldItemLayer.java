@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.HandSide;
-import net.sistr.lmml.entity.IHasMultiModel;
+import net.sistr.lmml.entity.compound.IHasMultiModel;
 import net.sistr.lmml.maidmodel.ModelRenderer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

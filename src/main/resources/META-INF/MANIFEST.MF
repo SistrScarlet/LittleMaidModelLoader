@@ -1,0 +1,1 @@
+MixinConnector: net.sistr.lmml.mixin.Connector
