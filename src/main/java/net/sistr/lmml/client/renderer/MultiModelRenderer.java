@@ -11,7 +11,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import net.sistr.lmml.LittleMaidModelLoader;
-import net.sistr.lmml.entity.IHasMultiModel;
+import net.sistr.lmml.entity.compound.IHasMultiModel;
 import net.sistr.lmml.maidmodel.ModelMultiBase;
 
 import javax.annotation.Nonnull;

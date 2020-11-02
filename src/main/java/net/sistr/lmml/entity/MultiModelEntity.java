@@ -3,6 +3,7 @@ package net.sistr.lmml.entity;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.*;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.LookAtGoal;
@@ -18,35 +19,45 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
-import net.sistr.lmml.LittleMaidModelLoader;
 import net.sistr.lmml.client.ModelSelectScreen;
+import net.sistr.lmml.entity.compound.IHasMultiModel;
+import net.sistr.lmml.entity.compound.MultiModelCompound;
+import net.sistr.lmml.entity.compound.SoundPlayable;
+import net.sistr.lmml.entity.compound.SoundPlayableCompound;
 import net.sistr.lmml.maidmodel.IModelCaps;
 import net.sistr.lmml.maidmodel.ModelMultiBase;
-import net.sistr.lmml.util.TextureColor;
-import net.sistr.lmml.util.TextureHolder;
-import net.sistr.lmml.resource.manager.TextureManager;
+import net.sistr.lmml.resource.holder.ConfigHolder;
+import net.sistr.lmml.resource.holder.TextureHolder;
+import net.sistr.lmml.resource.manager.LMModelManager;
+import net.sistr.lmml.resource.manager.LMTextureManager;
+import net.sistr.lmml.resource.util.LMSounds;
+import net.sistr.lmml.resource.util.TextureColors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
 //テスト用エンティティ
-public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, IEntityAdditionalSpawnData {
+public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, SoundPlayable, IEntityAdditionalSpawnData {
     private final MultiModelCompound multiModel;
+    private final SoundPlayableCompound soundPlayer;
 
     public MultiModelEntity(EntityType<MultiModelEntity> type, World worldIn) {
         super(type, worldIn);
         multiModel = new MultiModelCompound(this,
-                LittleMaidModelLoader.getInstance().getTextureManager().getTexture("default")
+                LMTextureManager.INSTANCE.getTexture("default")
                         .orElseThrow(() -> new IllegalStateException("デフォルトモデルが存在しません。")),
-                LittleMaidModelLoader.getInstance().getTextureManager().getTexture("default")
+                LMTextureManager.INSTANCE.getTexture("default")
                         .orElseThrow(() -> new IllegalStateException("デフォルトモデルが存在しません。")));
+        soundPlayer = new SoundPlayableCompound(this,
+                () -> multiModel.getTextureHolder(Layer.SKIN, Part.HEAD).getTextureName());
     }
 
     @Override
@@ -57,8 +68,8 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
     }
 
     public static AttributeModifierMap.MutableAttribute registerAttributes() {
-        return LivingEntity.registerAttributes().createMutableAttribute(Attributes.FOLLOW_RANGE, 16.0D)
-                .createMutableAttribute(Attributes.ATTACK_KNOCKBACK);
+        return CreatureEntity.registerAttributes()
+                .createMutableAttribute(Attributes.FOLLOW_RANGE, 16D);
     }
 
     @Override
@@ -79,10 +90,10 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
     public void readAdditional(@Nonnull CompoundNBT compound) {
         super.readAdditional(compound);
         if (compound.contains("SkinColor")) {
-            setColor(TextureColor.getColor(compound.getByte("SkinColor")));
+            setColor(TextureColors.getColor(compound.getByte("SkinColor")));
         }
         setContract(compound.getBoolean("IsContract"));
-        TextureManager textureManager = LittleMaidModelLoader.getInstance().getTextureManager();
+        LMTextureManager textureManager = LMTextureManager.INSTANCE;
         if (compound.contains("SkinTexture")) {
             textureManager.getTexture(compound.getString("SkinTexture"))
                     .ifPresent(textureHolder -> setTextureHolder(textureHolder, Layer.SKIN, Part.HEAD));
@@ -101,8 +112,6 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
         }
     }
 
-    //ここはForge機能なのでFabric移植時に改変が必要
-
     @Override
     public void writeSpawnData(PacketBuffer buffer) {
         buffer.writeEnumValue(getColor());
@@ -117,9 +126,9 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
     @Override
     public void readSpawnData(PacketBuffer additionalData) {
         //readString()はクラ処理。このメソッドでは、クラ側なので問題なし
-        setColor(additionalData.readEnumValue(TextureColor.class));
+        setColor(additionalData.readEnumValue(TextureColors.class));
         setContract(additionalData.readBoolean());
-        TextureManager textureManager = LittleMaidModelLoader.getInstance().getTextureManager();
+        LMTextureManager textureManager = LMTextureManager.INSTANCE;
         textureManager.getTexture(additionalData.readString())
                 .ifPresent(textureHolder -> setTextureHolder(textureHolder, Layer.SKIN, Part.HEAD));
         for (Part part : Part.values()) {
@@ -129,25 +138,27 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
                     .ifPresent(textureHolder -> setTextureHolder(textureHolder, Layer.OUTER, part));
         }
     }
-    
+
     @Override
     protected ActionResultType func_230254_b_(PlayerEntity player, @Nonnull Hand hand) {
         ItemStack stack = player.getHeldItem(hand);
         if (stack.getItem() instanceof ArmorItem) {
             ArmorItem armor = (ArmorItem) stack.getItem();
             this.setItemStackToSlot(armor.getEquipmentSlot(), stack);
-            return ActionResultType.func_233537_a_(this.world.isRemote);
+            return ActionResultType.func_233537_a_(world.isRemote);
         }
         if (world.isRemote) {
             openGUI();
+        } else {
+            play(LMSounds.LIVING_DAYTIME);
         }
-        return super.func_230254_b_(player, hand);
+        return ActionResultType.func_233537_a_(world.isRemote);
     }
 
     @OnlyIn(Dist.CLIENT)
     public void openGUI() {
         Minecraft.getInstance().displayGuiScreen(
-                new ModelSelectScreen(new StringTextComponent("aaa"), this.world, this));
+                new ModelSelectScreen(new StringTextComponent(""), this.world, this));
     }
 
     //このままだとEntitySizeが作っては捨てられてを繰り返すのでパフォーマンスはよろしくない
@@ -156,7 +167,7 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
     public EntitySize getSize(@Nonnull Pose poseIn) {
         EntitySize size;
         ModelMultiBase model = getModel(Layer.SKIN, Part.HEAD)
-                .orElse(LittleMaidModelLoader.getInstance().getModelManager().getDefaultModel());
+                .orElse(LMModelManager.INSTANCE.getDefaultModel());
         float height = model.getHeight(getCaps());
         float width = model.getWidth(getCaps());
         size = new EntitySize(width, height, false);
@@ -167,7 +178,7 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
     @Override
     public double getMountedYOffset() {
         ModelMultiBase model = getModel(Layer.SKIN, Part.HEAD)
-                .orElse(LittleMaidModelLoader.getInstance().getModelManager().getDefaultModel());
+                .orElse(LMModelManager.INSTANCE.getDefaultModel());
         return model.getMountedYOffset(getCaps());
     }
 
@@ -175,7 +186,7 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
     @Override
     public double getYOffset() {
         ModelMultiBase model = getModel(Layer.SKIN, Part.HEAD)
-                .orElse(LittleMaidModelLoader.getInstance().getModelManager().getDefaultModel());
+                .orElse(LMModelManager.INSTANCE.getDefaultModel());
         return model.getyOffset(getCaps()) - getHeight();
     }
 
@@ -205,12 +216,12 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
     }
 
     @Override
-    public void setColor(TextureColor color) {
+    public void setColor(TextureColors color) {
         multiModel.setColor(color);
     }
 
     @Override
-    public TextureColor getColor() {
+    public TextureColors getColor() {
         return multiModel.getColor();
     }
 
@@ -248,6 +259,21 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
     @Override
     public boolean isAllowChangeTexture(@Nullable Entity changer, TextureHolder textureHolder, @Nonnull Layer layer, @Nonnull Part part) {
         return true;
+    }
+
+    @Override
+    public void play(String soundName) {
+        soundPlayer.play(soundName);
+    }
+
+    @Override
+    public void setConfigHolder(ConfigHolder configHolder) {
+        soundPlayer.setConfigHolder(configHolder);
+    }
+
+    @Override
+    public ConfigHolder getConfigHolder() {
+        return soundPlayer.getConfigHolder();
     }
 
     //IEntityAdditionalSpawnDataに要る
