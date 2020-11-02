@@ -77,7 +77,7 @@ public class SyncMultiModelPacket {
     }
 
     public static void sendS2CPacket(Entity entity, IHasMultiModel hasMultiModel) {
-        Networking.INSTANCE.send(PacketDistributor.DIMENSION.with(() -> entity.dimension),
+        Networking.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity),
                 new SyncMultiModelPacket(entity, hasMultiModel));
     }
 

@@ -1,12 +1,15 @@
-package net.sistr.lmml.resource;
+package net.sistr.lmml.client;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.minecraft.resources.IResourcePack;
 import net.minecraft.resources.ResourcePackType;
 import net.minecraft.resources.data.IMetadataSectionSerializer;
 import net.minecraft.resources.data.PackMetadataSection;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -25,6 +28,7 @@ import java.util.zip.ZipFile;
 
 
 //外部から読み込んだリソースをマイクラに送るラッパー
+@OnlyIn(Dist.CLIENT)
 public class ResourceWrapper implements IResourcePack {
     public static final ResourceWrapper INSTANCE = new ResourceWrapper();
     private static final PackMetadataSection PACK_INFO =
@@ -61,12 +65,10 @@ public class ResourceWrapper implements IResourcePack {
         return PATHS.containsKey(location);
     }
 
-    //初期化時に読み込まれるが、その時点ではPATHSは空のため予めminecraftを突っ込んでおく
+    //初期化時に読み込まれる
     @Override
     public Set<String> getResourceNamespaces(ResourcePackType type) {
-        Set<String> nameSpaces = PATHS.keySet().stream().map(ResourceLocation::getNamespace).collect(Collectors.toSet());
-        nameSpaces.add("minecraft");
-        return nameSpaces;
+        return Sets.newHashSet("littlemaidmodelloader");
     }
 
     @SuppressWarnings("unchecked")
