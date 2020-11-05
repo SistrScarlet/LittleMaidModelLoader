@@ -26,7 +26,7 @@ public class SyncMultiModelPacket {
 
     public SyncMultiModelPacket(PacketBuffer buf) {
         entityId = buf.readVarInt();
-        textureName = buf.readString();
+        textureName = buf.readString(32767);
         for (IHasMultiModel.Part part : IHasMultiModel.Part.values()) {
             armorTextureName.setArmor(buf.readString(32767), part);
         }
@@ -59,13 +59,13 @@ public class SyncMultiModelPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
-                receiveS2CPacket(entityId, textureName, armorTextureName, color, isContract);
+                applyMultiModelClient(entityId, textureName, armorTextureName, color, isContract);
             } else {
                 PlayerEntity player = ctx.get().getSender();
                 if (player == null) {
                     return;
                 }
-                receiveC2SPacket(entityId, textureName, armorTextureName, color, isContract, player);
+                applyMultiModelServer(entityId, textureName, armorTextureName, color, isContract, player);
             }
         });
         ctx.get().setPacketHandled(true);
@@ -82,9 +82,9 @@ public class SyncMultiModelPacket {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void receiveS2CPacket(int entityId, String textureName, ArmorSets<String> armorTextureName,
-                                        TextureColors color, boolean isContract) {
-        World world = getWorld();
+    public static void applyMultiModelClient(int entityId, String textureName, ArmorSets<String> armorTextureName,
+                                             TextureColors color, boolean isContract) {
+        World world = Minecraft.getInstance().world;
         if (world == null) return;
         Entity entity = world.getEntityByID(entityId);
         if (!(entity instanceof IHasMultiModel)) return;
@@ -104,14 +104,8 @@ public class SyncMultiModelPacket {
         }
     }
 
-    //Fabricとの歩調合わせ
-    @OnlyIn(Dist.CLIENT)
-    private static World getWorld() {
-        return Minecraft.getInstance().world;
-    }
-
-    public static void receiveC2SPacket(int entityId, String textureName, ArmorSets<String> armorTextureName, TextureColors color,
-                                        boolean isContract, PlayerEntity player) {
+    public static void applyMultiModelServer(int entityId, String textureName, ArmorSets<String> armorTextureName, TextureColors color,
+                                             boolean isContract, PlayerEntity player) {
         Entity entity = player.world.getEntityByID(entityId);
         if (!(entity instanceof IHasMultiModel)) return;
         IHasMultiModel multiModel = (IHasMultiModel) entity;

@@ -32,12 +32,7 @@ public class LMSoundPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            PlayerEntity player = Minecraft.getInstance().player;
-            if (player == null)
-                return;
-            receiveS2CPacket(entityId, soundName, player);
-        });
+        ctx.get().enqueueWork(() -> playSoundClient(entityId, soundName));
         ctx.get().setPacketHandled(true);
     }
 
@@ -47,7 +42,9 @@ public class LMSoundPacket {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void receiveS2CPacket(int entityId, String soundName, PlayerEntity player) {
+    private void playSoundClient(int entityId, String soundName) {
+        PlayerEntity player = Minecraft.getInstance().player;
+        if (player == null) return;
         Entity entity = player.world.getEntityByID(entityId);
         if (entity instanceof SoundPlayable) {
             ((SoundPlayable) entity).play(soundName);
