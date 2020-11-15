@@ -7,7 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +104,7 @@ public class EntityCaps implements IModelCaps {
             case caps_motionZ:
                 return owner.getMotion().getZ();
             case caps_motion:
-                Vec3d vec = owner.getMotion();
+                Vector3d vec = owner.getMotion();
                 if (pArg == null) {
                     return new Double[]{vec.getX(), vec.getY(), vec.getZ()};
                 }
@@ -121,7 +121,7 @@ public class EntityCaps implements IModelCaps {
             case caps_renderYawOffset:
                 return owner.getYOffset();
             case caps_onGround:
-                return owner.onGround;
+                return owner.isOnGround();
             case caps_isRiding:
                 return owner.isPassenger();
             case caps_isRidingPlayer:
@@ -234,7 +234,7 @@ public class EntityCaps implements IModelCaps {
                 owner.setVelocity((Double) pArg[0], (Double) pArg[1], (Double) pArg[2]);
                 return true;
             case caps_onGround:
-                owner.onGround = (Boolean) pArg[0];
+                owner.setOnGround((Boolean) pArg[0]);
                 return true;
             case caps_isSneak:
                 owner.setSneaking((Boolean) pArg[0]);
