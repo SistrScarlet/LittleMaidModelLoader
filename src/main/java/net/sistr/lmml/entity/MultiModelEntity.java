@@ -170,7 +170,7 @@ public class MultiModelEntity extends CreatureEntity implements IHasMultiModel, 
                 .orElse(LMModelManager.INSTANCE.getDefaultModel());
         float height = model.getHeight(getCaps());
         float width = model.getWidth(getCaps());
-        size = new EntitySize(width, height, false);
+        size = EntitySize.flexible(width, height);
         return size.scale(getRenderScale());
     }
 

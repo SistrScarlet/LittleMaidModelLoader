@@ -27,15 +27,16 @@ public class Registration {
 
     public static final RegistryObject<EntityType<MultiModelEntity>> MULTI_MODEL_ENTITY = ENTITIES.register("multi_model_entity", () ->
             EntityType.Builder.create(MultiModelEntity::new, EntityClassification.MISC)
-            .size(0.8F, 1.2F)
+            .size(0.5F, 1.35F)
             .setShouldReceiveVelocityUpdates(false)
             .build("multi_model_entity"));
     public static final RegistryObject<EntityType<ModelSelectScreen.DummyModelEntity>> DUMMY_MODEL_ENTITY =
             ENTITIES.register("dummy_model_entity", () ->
             EntityType.Builder.create((EntityType.IFactory<ModelSelectScreen.DummyModelEntity>)
                     ModelSelectScreen.DummyModelEntity::new, EntityClassification.MISC)
-                    .size(0.8F, 1.2F)
+                    .size(0.5F, 1.35F)
                     .setShouldReceiveVelocityUpdates(false)
+                    .disableSummoning()
                     .build("dummy_model_entity"));
 
 }
