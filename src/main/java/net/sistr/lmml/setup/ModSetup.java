@@ -8,10 +8,7 @@ import net.sistr.lmml.client.resource.loader.LMSoundLoader;
 import net.sistr.lmml.client.resource.loader.LMTextureLoader;
 import net.sistr.lmml.client.resource.manager.LMSoundManager;
 import net.sistr.lmml.entity.compound.IHasMultiModel;
-import net.sistr.lmml.maidmodel.ModelLittleMaid_Archetype;
-import net.sistr.lmml.maidmodel.ModelLittleMaid_Aug;
-import net.sistr.lmml.maidmodel.ModelLittleMaid_Orign;
-import net.sistr.lmml.maidmodel.ModelLittleMaid_SR2;
+import net.sistr.lmml.maidmodel.*;
 import net.sistr.lmml.network.Networking;
 import net.sistr.lmml.resource.loader.LMFileLoader;
 import net.sistr.lmml.resource.manager.LMModelManager;
@@ -41,6 +38,8 @@ public class ModSetup {
         manager.addModel("SR2", ModelLittleMaid_SR2.class);
         manager.addModel("Aug", ModelLittleMaid_Aug.class);
         manager.addModel("Archetype", ModelLittleMaid_Archetype.class);
+        manager.addModel("Steve", ModelMulti_Steve.class);
+        manager.addModel("Stef", ModelMulti_Stef.class);
         manager.setDefaultModel(manager.getModel("Default", IHasMultiModel.Layer.SKIN)
                 .orElseThrow(RuntimeException::new));
 

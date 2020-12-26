@@ -37,6 +37,15 @@ public class MultiModelRenderer<T extends LivingEntity & IHasMultiModel> extends
     }
 
     @Override
+    protected void preRenderCallback(T entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
+        entitylivingbaseIn.getModel(IHasMultiModel.Layer.SKIN, IHasMultiModel.Part.HEAD).ifPresent(model -> {
+            float scale = (float) model.getCapsValue(caps_ScaleFactor);
+            matrixStackIn.scale(scale, scale, scale);
+        });
+
+    }
+
+    @Override
     public void render(T entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         IProfiler profiler = Minecraft.getInstance().getProfiler();
         profiler.startSection("lmml:mm");
